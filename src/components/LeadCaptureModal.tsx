@@ -52,10 +52,10 @@ const leadSchema = z.object({
   email: z.string().trim().email("Ingresa un email válido").max(255),
   countryCode: z.string().min(1, "Selecciona un código de país"),
   customCountryCode: z.string().optional(),
-  telefono: z.string().trim().max(15).regex(/^[0-9]*$/, "Solo números").optional().or(z.literal("")),
+  telefono: z.string().trim().min(6, "Ingresa un número de teléfono válido").max(15).regex(/^[0-9]+$/, "Solo números"),
   acceptTerms: z.literal(true, { errorMap: () => ({ message: "Debes aceptar los términos y condiciones" }) }),
 }).refine((data) => {
-  if (data.countryCode === "other" && data.telefono && data.telefono.length > 0) {
+  if (data.countryCode === "other") {
     return data.customCountryCode && data.customCountryCode.startsWith("+") && data.customCountryCode.length >= 2;
   }
   return true;
@@ -93,7 +93,7 @@ export const LeadCaptureModal = memo(function LeadCaptureModal({
   const validations = useMemo(() => ({
     nombre: nombre.trim().length >= 2,
     email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()),
-    telefono: telefono.length === 0 || telefono.length >= 6,
+    telefono: telefono.length >= 6,
   }), [nombre, email, telefono]);
 
   const handleSubmit = useCallback((e: React.FormEvent) => {
@@ -113,7 +113,7 @@ export const LeadCaptureModal = memo(function LeadCaptureModal({
     }
 
     const finalCountryCode = countryCode === "other" ? customCountryCode : countryCode;
-    const fullPhone = telefono ? `${finalCountryCode}${telefono}` : "";
+    const fullPhone = `${finalCountryCode}${telefono}`;
     onSubmit(result.data.nombre, result.data.email, fullPhone);
   }, [nombre, email, countryCode, customCountryCode, telefono, acceptTerms, onSubmit]);
 
@@ -203,7 +203,7 @@ export const LeadCaptureModal = memo(function LeadCaptureModal({
             {/* Teléfono - Optional */}
             <div className="space-y-2">
               <Label htmlFor="telefono" className="text-sm font-medium text-foreground">
-                Teléfono <span className="text-muted-foreground font-normal">(opcional)</span>
+                Teléfono *
               </Label>
               <div className="flex gap-2">
                 <Select value={countryCode} onValueChange={setCountryCode} disabled={isSubmitting}>

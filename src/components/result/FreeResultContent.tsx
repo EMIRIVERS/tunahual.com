@@ -14,16 +14,15 @@ const itemVariants = {
 };
 
 export const FreeResultContent = memo(function FreeResultContent({ result }: FreeResultContentProps) {
-  // Show only first 3 qualities (limited version)
-  const limitedQualities = result.nahual.cualidades?.slice(0, 3) || [];
-  const toneQualities = result.tone.cualidades?.slice(0, 2) || [];
-  
+  const qualities = result.nahual.cualidades || [];
+  const toneQualities = result.tone.cualidades || [];
+
   return (
     <motion.div
       variants={itemVariants}
       className="space-y-4"
     >
-      {/* Animal Guía - Limited */}
+      {/* Animal Guía */}
       <motion.div
         variants={itemVariants}
         className="p-4 rounded-2xl bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/20"
@@ -39,13 +38,13 @@ export const FreeResultContent = memo(function FreeResultContent({ result }: Fre
         </div>
       </motion.div>
 
-      {/* Limited Qualities */}
+      {/* All Qualities */}
       <motion.div variants={itemVariants} className="space-y-3">
         <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
           Tus Cualidades Principales
         </h4>
         <div className="flex flex-wrap gap-2">
-          {limitedQualities.map((cualidad, index) => (
+          {qualities.map((cualidad, index) => (
             <Badge
               key={index}
               variant="secondary"
@@ -54,15 +53,10 @@ export const FreeResultContent = memo(function FreeResultContent({ result }: Fre
               {cualidad}
             </Badge>
           ))}
-          {result.nahual.cualidades && result.nahual.cualidades.length > 3 && (
-            <Badge variant="outline" className="border-dashed opacity-50">
-              +{result.nahual.cualidades.length - 3} más...
-            </Badge>
-          )}
         </div>
       </motion.div>
 
-      {/* Tone Qualities - Limited */}
+      {/* All Tone Qualities */}
       <motion.div variants={itemVariants} className="space-y-3">
         <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
           <Star className="w-4 h-4 text-primary" />
@@ -78,16 +72,11 @@ export const FreeResultContent = memo(function FreeResultContent({ result }: Fre
               {cualidad}
             </Badge>
           ))}
-          {result.tone.cualidades && result.tone.cualidades.length > 2 && (
-            <Badge variant="outline" className="border-dashed opacity-50">
-              +{result.tone.cualidades.length - 2} más...
-            </Badge>
-          )}
         </div>
       </motion.div>
 
       {/* Basic Info Grid */}
-      <motion.div 
+      <motion.div
         variants={itemVariants}
         className="grid grid-cols-2 gap-3"
       >
@@ -107,16 +96,13 @@ export const FreeResultContent = memo(function FreeResultContent({ result }: Fre
         </div>
       </motion.div>
 
-      {/* Brief Description */}
+      {/* Full Description */}
       <motion.div
         variants={itemVariants}
         className="p-4 rounded-xl bg-muted/30 border border-border/30"
       >
-        <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">
+        <p className="text-sm text-muted-foreground leading-relaxed">
           {result.nahual.descripcion}
-        </p>
-        <p className="text-xs text-primary mt-2 font-medium">
-          Desbloquea tu lectura completa para ver más...
         </p>
       </motion.div>
     </motion.div>

@@ -220,6 +220,9 @@ export default function KinPage() {
         <meta name="description" content={pageDesc} />
         <meta name="keywords" content={`kin ${parsed.kinNumber}, ${tono.numero} ${nahual.nombre}, nahual ${nahual.nombre}, tono ${tono.numero}, calendario maya, cholqij`} />
         <link rel="canonical" href={`https://tunahual.com/kin/${kinSlug}`} />
+        <link rel="alternate" hreflang="es-MX" href={`https://tunahual.com/kin/${kinSlug}`} />
+        <link rel="alternate" hreflang="es" href={`https://tunahual.com/kin/${kinSlug}`} />
+        <link rel="alternate" hreflang="x-default" href={`https://tunahual.com/kin/${kinSlug}`} />
         <meta property="og:title" content={pageTitle} />
         <meta property="og:description" content={pageDesc} />
         <meta property="og:url" content={`https://tunahual.com/kin/${kinSlug}`} />

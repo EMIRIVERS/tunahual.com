@@ -128,6 +128,9 @@ export default function NahualPage() {
         <meta property="og:type" content="article" />
         <meta name="twitter:card" content="summary_large_image" />
         <link rel="canonical" href={`https://tunahual.com/nahual/${slug}`} />
+        <link rel="alternate" hreflang="es-MX" href={`https://tunahual.com/nahual/${slug}`} />
+        <link rel="alternate" hreflang="es" href={`https://tunahual.com/nahual/${slug}`} />
+        <link rel="alternate" hreflang="x-default" href={`https://tunahual.com/nahual/${slug}`} />
         <script type="application/ld+json">
           {JSON.stringify(structuredData)}
         </script>
@@ -428,18 +431,24 @@ export default function NahualPage() {
             </section>
           )}
 
-          {/* CTA */}
-          <section className="text-center py-12 bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 rounded-2xl">
-            <h2 className="text-2xl font-bold mb-4">¿Quieres saber cuál es tu Nahual?</h2>
+          {/* CTA Lead Capture */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/20 rounded-3xl p-6 text-center mb-12"
+          >
+            <h2 className="text-2xl font-bold mb-2">Descubre tu propio Nahual</h2>
             <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-              Descubre tu energía de nacimiento y tu Cruz Maya completa con nuestra calculadora gratuita.
+              Calcula gratis tu signo maya por fecha de nacimiento y conoce tu Cruz Maya completa
             </p>
             <Link to="/">
-              <Button size="lg">
-                Calcular mi Nahual
+              <Button variant="default" className="rounded-full" size="lg">
+                Calcular mi Nahual →
               </Button>
             </Link>
-          </section>
+            <p className="text-xs text-muted-foreground mt-3">Gratis · Tarda 30 segundos</p>
+          </motion.div>
 
           {/* Navigation */}
           <nav className="flex justify-between items-center mt-12 pt-8 border-t" aria-label="Navegación entre nahuales">

@@ -203,7 +203,7 @@ export default function ResultadoPage() {
     .filter(Boolean)
     .join('&');
   
-  const ogImageUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/og-image?nahual=${encodeURIComponent(nahual.nombre)}&tono=${tono.numero}${crossQueryParams ? `&${crossQueryParams}` : ''}`;
+  const ogImageUrl = `https://tu-nahual.vercel.app/og-image.png`;
 
   return (
     <>
@@ -219,6 +219,9 @@ export default function ResultadoPage() {
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:image" content={ogImageUrl} />
         <link rel="canonical" href={`https://tunahual.com/resultado/${kinSlug}`} />
+        <link rel="alternate" hreflang="es-MX" href={`https://tunahual.com/resultado/${kinSlug}`} />
+        <link rel="alternate" hreflang="es" href={`https://tunahual.com/resultado/${kinSlug}`} />
+        <link rel="alternate" hreflang="x-default" href={`https://tunahual.com/resultado/${kinSlug}`} />
         <script type="application/ld+json">
           {JSON.stringify(structuredData)}
         </script>

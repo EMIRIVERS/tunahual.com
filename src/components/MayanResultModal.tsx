@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { MayanKinDB, MayanCrossDB, calculateTrecena } from "@/utils/mayanCalculations";
 import { useMayanData } from "@/hooks/useMayanData";
 import { getNahualConocimiento } from "@/data/mayanKnowledge";
-import { X, Heart, Grid3X3, BookOpen } from "lucide-react";
+import { X, Heart, Grid3X3, BookOpen, Star } from "lucide-react";
 import { MayanCrossDisplay } from "./MayanCrossDisplay";
 import { OptimizedParticles, OptimizedGlowingOrbs } from "./OptimizedParticles";
 
@@ -156,7 +156,31 @@ export function MayanResultModal({
               {/* Share and Close buttons */}
               <motion.div variants={itemVariants} className="mt-6 space-y-3">
                 <ShareButtons result={result} cross={cross} />
-                <Button 
+                <motion.div
+                  variants={itemVariants}
+                  className="rounded-2xl p-4 bg-primary/10 border border-primary/20 flex flex-col gap-3"
+                >
+                  <div className="flex items-start gap-3">
+                    <Star className="w-5 h-5 text-primary mt-0.5 shrink-0" />
+                    <div>
+                      <p className="font-semibold text-foreground text-sm">
+                        ¿Quieres profundizar en tu nahual?
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                        Descubre los programas y meditaciones de Azul Anaité diseñados para tu energía
+                      </p>
+                    </div>
+                  </div>
+                  <a
+                    href="https://azulanaite.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full inline-flex items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-medium py-2.5 px-4 hover:bg-primary/90 transition-colors"
+                  >
+                    Explorar Azul Anaité →
+                  </a>
+                </motion.div>
+                <Button
                   onClick={onClose}
                   variant="outline"
                   className="w-full rounded-full py-6 text-base font-medium"

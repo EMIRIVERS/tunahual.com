@@ -1,35 +1,60 @@
 import { memo, useEffect, useState } from "react";
 import { Users } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface SocialProofCounterProps {
   baseCount: number;
 }
 
-export const SocialProofCounter = memo(function SocialProofCounter({ 
-  baseCount 
+export const SocialProofCounter = memo(function SocialProofCounter({
+  baseCount
 }: SocialProofCounterProps) {
-  const [displayCount, setDisplayCount] = useState(0);
+  const [displayCount, setDisplayCount] = useState(baseCount);
   const [isVisible, setIsVisible] = useState(false);
 
-  // Animate counter on mount
+  // Fetch real count from Supabase, then animate
   useEffect(() => {
     setIsVisible(true);
-    const duration = 1500;
-    const steps = 30;
-    const increment = baseCount / steps;
-    let current = 0;
-    
-    const timer = setInterval(() => {
-      current += increment;
-      if (current >= baseCount) {
-        setDisplayCount(baseCount);
-        clearInterval(timer);
-      } else {
-        setDisplayCount(Math.floor(current));
-      }
-    }, duration / steps);
 
-    return () => clearInterval(timer);
+    let cancelled = false;
+
+    const fetchAndAnimate = async () => {
+      let targetCount = baseCount;
+
+      const { count, error } = await supabase
+        .from("leads")
+        .select("*", { count: "exact", head: true });
+
+      if (!cancelled) {
+        if (!error && count !== null) {
+          targetCount = count + 10000;
+        }
+
+        const duration = 1500;
+        const steps = 30;
+        const increment = targetCount / steps;
+        let current = 0;
+
+        const timer = setInterval(() => {
+          current += increment;
+          if (current >= targetCount) {
+            setDisplayCount(targetCount);
+            clearInterval(timer);
+          } else {
+            setDisplayCount(Math.floor(current));
+          }
+        }, duration / steps);
+
+        return () => clearInterval(timer);
+      }
+    };
+
+    const cleanup = fetchAndAnimate();
+
+    return () => {
+      cancelled = true;
+      cleanup.then((fn) => fn && fn());
+    };
   }, [baseCount]);
 
   const formattedCount = displayCount.toLocaleString('es-ES');
