@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { MayanKinDB, MayanCrossDB, calculateTrecena } from "@/utils/mayanCalculations";
 import { useMayanData } from "@/hooks/useMayanData";
 import { getNahualConocimiento } from "@/data/mayanKnowledge";
-import { X, Heart, Grid3X3, BookOpen, Star } from "lucide-react";
+import { X, Heart, Grid3X3, BookOpen, Star, Mail, Check } from "lucide-react";
 import { MayanCrossDisplay } from "./MayanCrossDisplay";
 import { OptimizedParticles, OptimizedGlowingOrbs } from "./OptimizedParticles";
 
@@ -23,6 +23,8 @@ interface MayanResultModalProps {
   result: MayanKinDB | null;
   birthDate: Date | null;
   cross: MayanCrossDB | null;
+  onSaveByEmail?: () => void;
+  leadSubmitted?: boolean;
 }
 
 const containerVariants = {
@@ -42,12 +44,14 @@ const itemVariants = {
   visible: { opacity: 1, y: 0, scale: 1 },
 };
 
-export function MayanResultModal({ 
-  isOpen, 
-  onClose, 
-  result, 
-  birthDate, 
+export function MayanResultModal({
+  isOpen,
+  onClose,
+  result,
+  birthDate,
   cross,
+  onSaveByEmail,
+  leadSubmitted,
 }: MayanResultModalProps) {
   const { nahuales } = useMayanData();
 
@@ -155,6 +159,34 @@ export function MayanResultModal({
 
               {/* Share and Close buttons */}
               <motion.div variants={itemVariants} className="mt-6 space-y-3">
+                {/* Recibir la lectura por email (invitación, no muro) */}
+                {onSaveByEmail && (
+                  leadSubmitted ? (
+                    <div className="rounded-2xl p-4 bg-primary/5 border border-primary/15 flex items-center justify-center gap-2 text-sm text-foreground">
+                      <Check className="w-4 h-4 text-primary" />
+                      Te enviamos tu lectura a tu correo
+                    </div>
+                  ) : (
+                    <div className="rounded-2xl p-5 bg-card/60 border border-border/60 text-center space-y-3">
+                      <p className="font-serif text-xl text-foreground">
+                        Guarda tu lectura
+                      </p>
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        Te la enviamos por correo para que vuelvas a tu mapa maya
+                        cuando lo necesites.
+                      </p>
+                      <Button
+                        onClick={onSaveByEmail}
+                        variant="cta"
+                        className="w-full rounded-full py-6 text-base font-medium gap-2"
+                      >
+                        <Mail className="w-5 h-5" />
+                        Recibir mi lectura por email
+                      </Button>
+                    </div>
+                  )
+                )}
+
                 <ShareButtons result={result} cross={cross} />
                 <motion.div
                   variants={itemVariants}

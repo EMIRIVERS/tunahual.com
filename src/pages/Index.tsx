@@ -31,6 +31,7 @@ const Index = () => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isCalculating, setIsCalculating] = useState(false);
   const [isSubmittingLead, setIsSubmittingLead] = useState(false);
+  const [leadSubmitted, setLeadSubmitted] = useState(false);
   
   const { toast } = useToast();
 
@@ -55,7 +56,9 @@ const Index = () => {
 
       setTimeout(() => {
         setIsCalculating(false);
-        setIsLeadModalOpen(true);
+        // Mostrar la lectura directamente (sin muro). Se invita a guardarla
+        // por email DESDE el resultado.
+        setIsResultModalOpen(true);
         // Track calculation event
         trackEvent('calcular_nahual', {
           nahual: mayanKin?.nahual?.nombre,
@@ -138,9 +141,24 @@ const Index = () => {
           }
         });
 
-      
+      // Enviar la lectura por email (no bloqueante; degrada con gracia
+      // si aún no hay proveedor de email configurado)
+      fetch("/api/send-reading", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nombre,
+          email,
+          nahual: result.nahual.nombre,
+          tono: result.tone.numero,
+          significado: result.nahual.significado,
+          descripcion: result.nahual.descripcion,
+          kin_completo: kinCompleto,
+        }),
+      }).catch(console.error);
+
       setIsLeadModalOpen(false);
-      setIsResultModalOpen(true);
+      setLeadSubmitted(true);
 
       // Track lead submission event
       trackEvent('lead_enviado', {
@@ -149,8 +167,8 @@ const Index = () => {
       });
 
       toast({
-        title: "¡Datos guardados!",
-        description: "Ahora puedes ver tu lectura.",
+        title: "¡Listo!",
+        description: "Te enviamos tu lectura a tu correo.",
       });
     } catch (error) {
       console.error("Error saving lead:", error);
@@ -330,6 +348,7 @@ const Index = () => {
                         setCross(null);
                         setSelectedDate(null);
                         setBirthDate("");
+                        setLeadSubmitted(false);
                       }}
                     >
                       ← Calcular otra fecha
@@ -456,6 +475,8 @@ const Index = () => {
               result={result}
               birthDate={selectedDate}
               cross={cross}
+              onSaveByEmail={() => setIsLeadModalOpen(true)}
+              leadSubmitted={leadSubmitted}
             />
           )}
         </Suspense>

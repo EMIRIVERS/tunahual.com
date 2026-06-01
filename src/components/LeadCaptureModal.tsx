@@ -50,10 +50,13 @@ const leadSchema = z.object({
   email: z.string().trim().email("Ingresa un email válido").max(255),
   countryCode: z.string().min(1, "Selecciona un código de país"),
   customCountryCode: z.string().optional(),
-  telefono: z.string().trim().min(6, "Ingresa un número de teléfono válido").max(15).regex(/^[0-9]+$/, "Solo números"),
+  telefono: z.union([
+    z.literal(""),
+    z.string().trim().min(6, "Ingresa un número de teléfono válido").max(15).regex(/^[0-9]+$/, "Solo números"),
+  ]),
   acceptTerms: z.literal(true, { errorMap: () => ({ message: "Debes aceptar los términos y condiciones" }) }),
 }).refine((data) => {
-  if (data.countryCode === "other") {
+  if (data.countryCode === "other" && data.telefono) {
     return data.customCountryCode && data.customCountryCode.startsWith("+") && data.customCountryCode.length >= 2;
   }
   return true;
@@ -111,7 +114,7 @@ export const LeadCaptureModal = memo(function LeadCaptureModal({
     }
 
     const finalCountryCode = countryCode === "other" ? customCountryCode : countryCode;
-    const fullPhone = `${finalCountryCode}${telefono}`;
+    const fullPhone = telefono ? `${finalCountryCode}${telefono}` : "";
     onSubmit(result.data.nombre, result.data.email, fullPhone);
   }, [nombre, email, countryCode, customCountryCode, telefono, acceptTerms, onSubmit]);
 
@@ -135,15 +138,15 @@ export const LeadCaptureModal = memo(function LeadCaptureModal({
               Tu lectura del Cholq'ij
             </p>
             <DialogTitle className="font-serif text-3xl font-semibold text-foreground">
-              Tu energía está revelada
+              Recibe tu lectura
             </DialogTitle>
 
             {/* Nahual Preview */}
             {nahualPreview && <NahualPreview result={nahualPreview} />}
 
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Dinos a dónde enviar tu lectura completa y guardaremos tu mapa
-              maya para que puedas volver a él cuando lo necesites.
+              Te enviamos tu lectura completa por correo para que vuelvas a tu
+              mapa maya cuando lo necesites.
             </p>
           </DialogHeader>
 

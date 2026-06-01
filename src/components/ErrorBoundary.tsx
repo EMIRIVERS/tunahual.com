@@ -22,6 +22,21 @@ export class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, info: ErrorInfo) {
     console.error("ErrorBoundary capturó un error:", error, info);
+
+    // Reportar a Sentry solo si está activo (import dinámico, sin dependencia dura)
+    import("../lib/monitoring")
+      .then(({ isSentryActive }) => {
+        if (isSentryActive()) {
+          import("@sentry/react").then((Sentry) => {
+            Sentry.captureException(error, {
+              contexts: { react: { componentStack: info.componentStack } },
+            });
+          });
+        }
+      })
+      .catch(() => {
+        /* no romper el fallback si el reporte falla */
+      });
   }
 
   render() {
