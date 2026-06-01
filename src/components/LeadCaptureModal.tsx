@@ -202,7 +202,7 @@ export const LeadCaptureModal = memo(function LeadCaptureModal({
             {/* Teléfono - Optional */}
             <div className="space-y-2">
               <Label htmlFor="telefono" className="text-sm font-medium text-foreground">
-                Teléfono *
+                Teléfono <span className="text-muted-foreground font-normal">(opcional)</span>
               </Label>
               <div className="flex gap-2">
                 <Select value={countryCode} onValueChange={setCountryCode} disabled={isSubmitting}>

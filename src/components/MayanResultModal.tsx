@@ -25,6 +25,7 @@ interface MayanResultModalProps {
   cross: MayanCrossDB | null;
   onSaveByEmail?: () => void;
   leadSubmitted?: boolean;
+  emailSent?: boolean;
 }
 
 const containerVariants = {
@@ -52,6 +53,7 @@ export function MayanResultModal({
   cross,
   onSaveByEmail,
   leadSubmitted,
+  emailSent,
 }: MayanResultModalProps) {
   const { nahuales } = useMayanData();
 
@@ -164,7 +166,9 @@ export function MayanResultModal({
                   leadSubmitted ? (
                     <div className="rounded-2xl p-4 bg-primary/5 border border-primary/15 flex items-center justify-center gap-2 text-sm text-foreground">
                       <Check className="w-4 h-4 text-primary" />
-                      Te enviamos tu lectura a tu correo
+                      {emailSent
+                        ? "Te enviamos tu lectura a tu correo"
+                        : "Tu lectura quedó guardada"}
                     </div>
                   ) : (
                     <div className="rounded-2xl p-5 bg-card/60 border border-border/60 text-center space-y-3">

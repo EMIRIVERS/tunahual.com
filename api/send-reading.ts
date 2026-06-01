@@ -5,11 +5,34 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const { nombre, email, nahual, tono, significado, descripcion, kin_completo } = req.body;
-
-  if (!nombre || !email) {
-    return res.status(400).json({ error: "nombre y email son requeridos" });
+  // Anti-abuso: solo aceptar peticiones desde nuestro propio sitio.
+  const origin = String(req.headers.origin || req.headers.referer || "");
+  const originAllowed =
+    /^https?:\/\/(www\.)?tunahual\.com/.test(origin) ||
+    /^https:\/\/[a-z0-9-]+\.vercel\.app/.test(origin) ||
+    /^http:\/\/localhost(:\d+)?/.test(origin);
+  if (!originAllowed) {
+    return res.status(403).json({ error: "forbidden" });
   }
+
+  const { nombre, email, nahual, tono, significado, descripcion, kin_completo } = req.body || {};
+
+  // Validación de entrada
+  const emailValid = typeof email === "string" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && email.length <= 255;
+  const nombreValid = typeof nombre === "string" && nombre.trim().length >= 2 && nombre.length <= 100;
+  if (!nombreValid || !emailValid) {
+    return res.status(400).json({ error: "nombre y email válidos son requeridos" });
+  }
+
+  // Acotar tamaños del contenido para evitar payloads abusivos
+  const cap = (v: unknown, n: number) => (typeof v === "string" ? v.slice(0, n) : "");
+  const safe = {
+    nahual: cap(nahual, 60),
+    tono: cap(String(tono ?? ""), 10),
+    significado: cap(significado, 600),
+    descripcion: cap(descripcion, 4000),
+    kin_completo: cap(kin_completo, 60),
+  };
 
   // Degradación elegante: sin API key, no rompe el flujo.
   const apiKey = process.env.RESEND_API_KEY;
@@ -22,11 +45,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     const htmlContent = generateEmailHTML({
       nombre,
-      nahual: nahual || "Tu Nahual",
-      tono: String(tono ?? ""),
-      significado: significado || "",
-      descripcion: descripcion || "",
-      kinCompleto: kin_completo || "",
+      nahual: safe.nahual || "Tu Nahual",
+      tono: safe.tono,
+      significado: safe.significado,
+      descripcion: safe.descripcion,
+      kinCompleto: safe.kin_completo,
     });
 
     const response = await fetch("https://api.resend.com/emails", {
@@ -38,7 +61,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       body: JSON.stringify({
         from: emailFrom,
         to: email,
-        subject: `Tu lectura maya: ${tono} ${nahual}`,
+        subject: `Tu lectura maya: ${safe.tono} ${safe.nahual}`.trim(),
         html: htmlContent,
       }),
     });

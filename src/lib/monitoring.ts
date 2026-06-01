@@ -26,10 +26,10 @@ export function initMonitoring(): void {
   // Import dinámico: @sentry/react solo se descarga si hay DSN configurado.
   import('@sentry/react')
     .then((Sentry) => {
+      // Solo monitoreo de errores (sin performance tracing, más liviano).
       Sentry.init({
         dsn: SENTRY_DSN,
         environment: import.meta.env.MODE,
-        tracesSampleRate: 0.1,
       });
       active = true;
     })

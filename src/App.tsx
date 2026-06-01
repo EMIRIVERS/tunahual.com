@@ -2,11 +2,21 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { ErrorBoundary } from "./components/ErrorBoundary";
-import { Suspense, lazy } from "react";
+import { Suspense, lazy, useEffect } from "react";
 import { RoutesSuspenseFallback } from "./components/RoutesSuspenseFallback";
+import { trackPageview } from "./lib/analytics";
+
+// Registra cada cambio de ruta como pageview (SPA: el load inicial no basta)
+function RouteTracker() {
+  const location = useLocation();
+  useEffect(() => {
+    trackPageview(location.pathname + location.search);
+  }, [location.pathname, location.search]);
+  return null;
+}
 
 // Eager: Home (crítico para LCP, ya hace lazy-load de sus propios modales)
 import Index from "./pages/Index";
@@ -32,6 +42,7 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
+            <RouteTracker />
             <Suspense fallback={<RoutesSuspenseFallback />}>
               <Routes>
                 <Route path="/" element={<Index />} />

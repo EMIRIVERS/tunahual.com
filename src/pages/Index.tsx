@@ -32,6 +32,7 @@ const Index = () => {
   const [isCalculating, setIsCalculating] = useState(false);
   const [isSubmittingLead, setIsSubmittingLead] = useState(false);
   const [leadSubmitted, setLeadSubmitted] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
   
   const { toast } = useToast();
 
@@ -64,7 +65,7 @@ const Index = () => {
           nahual: mayanKin?.nahual?.nombre,
           tono: mayanKin?.tone?.numero,
         });
-      }, 1500);
+      }, 600);
     };
 
     if ('requestIdleCallback' in window) {
@@ -144,22 +145,30 @@ const Index = () => {
           }
         });
 
-      // Enviar la lectura por email (no bloqueante; degrada con gracia
-      // si aún no hay proveedor de email configurado)
-      fetch("/api/send-reading", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          nombre,
-          email,
-          nahual: result.nahual.nombre,
-          tono: result.tone.numero,
-          significado: result.nahual.significado,
-          descripcion: result.nahual.descripcion,
-          kin_completo: kinCompleto,
-        }),
-      }).catch(console.error);
+      // Enviar la lectura por email. Esperamos la respuesta para NO afirmar
+      // que se envió si el proveedor aún no está configurado (degrada con gracia).
+      let sent = false;
+      try {
+        const resp = await fetch("/api/send-reading", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            nombre,
+            email,
+            nahual: result.nahual.nombre,
+            tono: result.tone.numero,
+            significado: result.nahual.significado,
+            descripcion: result.nahual.descripcion,
+            kin_completo: kinCompleto,
+          }),
+        });
+        const json = await resp.json().catch(() => ({}));
+        sent = json?.ok === true;
+      } catch (e) {
+        console.error("send-reading error:", e);
+      }
 
+      setEmailSent(sent);
       setIsLeadModalOpen(false);
       setLeadSubmitted(true);
 
@@ -169,10 +178,11 @@ const Index = () => {
         tono: result.tone.numero,
       });
 
-      toast({
-        title: "¡Listo!",
-        description: "Te enviamos tu lectura a tu correo.",
-      });
+      toast(
+        sent
+          ? { title: "¡Listo!", description: "Te enviamos tu lectura a tu correo." }
+          : { title: "¡Guardado!", description: "Tu lectura quedó guardada." }
+      );
     } catch (error) {
       console.error("Error saving lead:", error);
       toast({
@@ -352,6 +362,7 @@ const Index = () => {
                         setSelectedDate(null);
                         setBirthDate("");
                         setLeadSubmitted(false);
+                        setEmailSent(false);
                       }}
                     >
                       ← Calcular otra fecha
@@ -480,6 +491,7 @@ const Index = () => {
               cross={cross}
               onSaveByEmail={() => setIsLeadModalOpen(true)}
               leadSubmitted={leadSubmitted}
+              emailSent={emailSent}
             />
           )}
         </Suspense>
