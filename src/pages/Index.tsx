@@ -117,7 +117,7 @@ const Index = () => {
         .from("configuracion")
         .select("valor")
         .eq("clave", "zapier_webhook_url")
-        .single()
+        .maybeSingle()
         .then(({ data: config }) => {
           if (config?.valor) {
             fetch(config.valor, {
