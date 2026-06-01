@@ -18,13 +18,13 @@ export const ConocimientoProfundoTab = memo(function ConocimientoProfundoTab({
   nahualNombre
 }: ConocimientoProfundoTabProps) {
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 prose-measure">
       <motion.div
         variants={itemVariants}
-        className="p-4 rounded-2xl bg-amber-500/5 border border-amber-500/20"
+        className="p-5 rounded-2xl bg-card/60 border border-border/60"
       >
-        <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-          <Flame className="w-4 h-4 text-amber-500" />
+        <h4 className="font-serif text-xl font-semibold text-foreground mb-3 flex items-center gap-2">
+          <Flame className="w-4 h-4 text-primary/70" />
           Ceremonias y Rituales
         </h4>
         <p className="text-sm text-muted-foreground leading-relaxed">
@@ -34,54 +34,51 @@ export const ConocimientoProfundoTab = memo(function ConocimientoProfundoTab({
 
       <motion.div
         variants={itemVariants}
-        className="p-4 rounded-2xl bg-purple-500/5 border border-purple-500/20"
+        className="p-6 rounded-2xl bg-primary/5 border border-primary/15 text-center"
       >
-        <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-          <BookOpen className="w-4 h-4 text-purple-500" />
-          Mensaje Espiritual
-        </h4>
-        <p className="text-sm text-muted-foreground leading-relaxed italic">
+        <BookOpen className="w-5 h-5 text-primary/70 mx-auto mb-3" />
+        <p className="font-serif text-xl text-foreground leading-snug italic">
           "{conocimiento.mensajeEspiritual}"
         </p>
       </motion.div>
 
       <motion.div
         variants={itemVariants}
-        className="p-4 rounded-2xl bg-indigo-500/5 border border-indigo-500/20"
+        className="p-5 rounded-2xl bg-card/60 border border-border/60"
       >
-        <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-          <Moon className="w-4 h-4 text-indigo-500" />
+        <h4 className="font-serif text-xl font-semibold text-foreground mb-3 flex items-center gap-2">
+          <Moon className="w-4 h-4 text-primary/70" />
           Trabajo Espiritual
         </h4>
         <p className="text-sm text-muted-foreground leading-relaxed">
           {conocimiento.trabajoEspiritual}
         </p>
         {conocimiento.fecundadoEn && (
-          <p className="text-xs text-muted-foreground mt-3 pt-3 border-t border-indigo-500/20">
-            <span className="font-medium">Los nacidos en {nahualNombre} fueron fecundados en:</span> {conocimiento.fecundadoEn}
+          <p className="text-xs text-muted-foreground mt-3 pt-3 border-t border-border/60">
+            <span className="font-medium text-foreground/80">Los nacidos en {nahualNombre} fueron fecundados en:</span> {conocimiento.fecundadoEn}
           </p>
         )}
       </motion.div>
 
       {/* Polaridades */}
       <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="p-4 rounded-2xl bg-green-500/5 border border-green-500/20">
-          <h4 className="font-semibold text-foreground mb-3 text-sm">Polaridad Positiva</h4>
-          <ul className="space-y-1">
+        <div className="p-5 rounded-2xl bg-card/60 border border-border/60">
+          <h4 className="font-serif text-lg font-semibold text-foreground mb-3">Luz</h4>
+          <ul className="space-y-1.5">
             {conocimiento.polaridadPositiva.map((item, i) => (
               <li key={i} className="text-xs text-muted-foreground flex items-start gap-2">
-                <span className="text-green-500 mt-0.5">✓</span>
+                <span className="text-primary mt-0.5">·</span>
                 {item}
               </li>
             ))}
           </ul>
         </div>
-        <div className="p-4 rounded-2xl bg-red-500/5 border border-red-500/20">
-          <h4 className="font-semibold text-foreground mb-3 text-sm">Aspectos a Trabajar</h4>
-          <ul className="space-y-1">
+        <div className="p-5 rounded-2xl bg-card/60 border border-border/60">
+          <h4 className="font-serif text-lg font-semibold text-foreground mb-3">Aspectos a trabajar</h4>
+          <ul className="space-y-1.5">
             {conocimiento.polaridadNegativa.map((item, i) => (
               <li key={i} className="text-xs text-muted-foreground flex items-start gap-2">
-                <span className="text-red-500 mt-0.5">!</span>
+                <span className="text-muted-foreground/50 mt-0.5">·</span>
                 {item}
               </li>
             ))}
@@ -92,9 +89,9 @@ export const ConocimientoProfundoTab = memo(function ConocimientoProfundoTab({
       {/* Significado Profundo */}
       <motion.div
         variants={itemVariants}
-        className="p-4 rounded-2xl bg-primary/5 border border-primary/10"
+        className="p-5 rounded-2xl bg-card/60 border border-border/60"
       >
-        <h4 className="font-semibold text-foreground mb-3">Significado Profundo</h4>
+        <h4 className="font-serif text-xl font-semibold text-foreground mb-3">Significado Profundo</h4>
         <p className="text-sm text-muted-foreground leading-relaxed">
           {conocimiento.significadoProfundo}
         </p>
@@ -103,9 +100,9 @@ export const ConocimientoProfundoTab = memo(function ConocimientoProfundoTab({
       {/* Relación con la Naturaleza */}
       <motion.div
         variants={itemVariants}
-        className="p-4 rounded-2xl bg-emerald-500/5 border border-emerald-500/20"
+        className="p-5 rounded-2xl bg-card/60 border border-border/60"
       >
-        <h4 className="font-semibold text-foreground mb-3 text-sm">Conexión con la Naturaleza</h4>
+        <h4 className="font-serif text-xl font-semibold text-foreground mb-3">Conexión con la Naturaleza</h4>
         <p className="text-sm text-muted-foreground leading-relaxed">
           {conocimiento.relacionConNaturaleza}
         </p>

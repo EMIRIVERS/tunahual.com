@@ -113,6 +113,25 @@
   .hover-scale {
     @apply transition-transform duration-200 ease-out hover:scale-105 active:scale-95;
   }
+
+  /* Editorial reading measure for long-form prose */
+  .prose-measure {
+    max-width: 62ch;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+/* Respect users who prefer reduced motion — signal of a serious product */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* Performance-optimized animations */

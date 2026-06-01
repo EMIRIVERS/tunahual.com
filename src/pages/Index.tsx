@@ -230,19 +230,22 @@ const Index = () => {
         {/* Main Content - Always show form, no AnimatePresence */}
         <main className="flex-1 min-h-0 overflow-y-auto flex items-center justify-center px-4 py-2 relative z-10">
           {isCalculating ? (
-            /* Simple CSS-based loader instead of heavy PyramidLoader */
-            <div className="w-full max-w-md">
-              <div className="bg-card rounded-3xl p-6 shadow-sm border border-border/50">
-                <div className="flex flex-col items-center justify-center py-8">
-                  <div className="relative w-16 h-16 mb-4">
-                    <div className="absolute inset-0 rounded-full border-4 border-primary/20" />
-                    <div className="absolute inset-0 rounded-full border-4 border-primary border-t-transparent animate-spin" />
-                    <Calendar className="absolute inset-0 m-auto w-6 h-6 text-primary" />
-                  </div>
-                  <p className="text-sm text-muted-foreground animate-pulse">
-                    Consultando el calendario sagrado...
-                  </p>
+            /* Ceremonial reveal — concentric rings turning slowly, not a busy spinner */
+            <div className="w-full max-w-md animate-fade-in">
+              <div className="flex flex-col items-center justify-center py-12">
+                <div className="relative w-28 h-28 mb-7">
+                  <div className="absolute inset-0 rounded-full border border-primary/20 animate-spin" style={{ animationDuration: '9s' }} />
+                  <div className="absolute inset-3 rounded-full border border-primary/30 animate-spin" style={{ animationDuration: '6s', animationDirection: 'reverse' }} />
+                  <div className="absolute inset-6 rounded-full border border-primary/40 animate-spin" style={{ animationDuration: '4s' }} />
+                  <div className="absolute inset-0 m-auto w-2 h-2 rounded-full bg-primary animate-pulse-slow" />
+                  <Calendar className="absolute inset-0 m-auto w-6 h-6 text-primary/70" />
                 </div>
+                <p className="font-serif text-2xl text-foreground text-center">
+                  Consultando el calendario sagrado
+                </p>
+                <p className="text-xs uppercase tracking-[0.25em] text-primary/60 mt-3">
+                  Cholq'ij
+                </p>
               </div>
             </div>
           ) : (
