@@ -203,7 +203,7 @@ export default function ResultadoPage() {
     .filter(Boolean)
     .join('&');
   
-  const ogImageUrl = `https://tunahual.com/api/og?nahual=${encodeURIComponent(nahual?.nombre || "")}&tono=${encodeURIComponent(tono?.numero ?? "")}`;
+  const ogImageUrl = `https://tunahual.com/og-image.png`;
 
   return (
     <>
