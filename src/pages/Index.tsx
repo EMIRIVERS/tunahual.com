@@ -12,6 +12,7 @@ import { Calendar, ArrowLeft, Loader2, Globe } from "lucide-react";
 import logo from "@/assets/logo-azul-anaite.png";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { trackEvent } from "@/lib/analytics";
 
 // Lazy load heavy modals - critical for LCP
 const MayanResultModal = lazy(() => 
@@ -55,6 +56,11 @@ const Index = () => {
       setTimeout(() => {
         setIsCalculating(false);
         setIsLeadModalOpen(true);
+        // Track calculation event
+        trackEvent('calcular_nahual', {
+          nahual: mayanKin?.nahual?.nombre,
+          tono: mayanKin?.tone?.numero,
+        });
       }, 1500);
     };
 
@@ -135,6 +141,12 @@ const Index = () => {
       
       setIsLeadModalOpen(false);
       setIsResultModalOpen(true);
+
+      // Track lead submission event
+      trackEvent('lead_enviado', {
+        nahual: result.nahual.nombre,
+        tono: result.tone.numero,
+      });
 
       toast({
         title: "¡Datos guardados!",

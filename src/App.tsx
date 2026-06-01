@@ -5,44 +5,52 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { ErrorBoundary } from "./components/ErrorBoundary";
+import { Suspense, lazy } from "react";
+import { RoutesSuspenseFallback } from "./components/RoutesSuspenseFallback";
+
+// Eager: Home (crítico para LCP, ya hace lazy-load de sus propios modales)
 import Index from "./pages/Index";
-import Admin from "./pages/Admin";
-import AdminLogin from "./pages/AdminLogin";
-import ResetPassword from "./pages/ResetPassword";
-import NotFound from "./pages/NotFound";
-import NahualPage from "./pages/NahualPage";
-import NahualesIndex from "./pages/NahualesIndex";
-import ResultadoPage from "./pages/ResultadoPage";
-import KinIndex from "./pages/KinIndex";
-import KinPage from "./pages/KinPage";
+
+// Lazy: el resto de páginas
+const Admin = lazy(() => import("./pages/Admin"));
+const AdminLogin = lazy(() => import("./pages/AdminLogin"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const NahualPage = lazy(() => import("./pages/NahualPage"));
+const NahualesIndex = lazy(() => import("./pages/NahualesIndex"));
+const ResultadoPage = lazy(() => import("./pages/ResultadoPage"));
+const KinIndex = lazy(() => import("./pages/KinIndex"));
+const KinPage = lazy(() => import("./pages/KinPage"));
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <ErrorBoundary>
-  <HelmetProvider>
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/nahuales" element={<NahualesIndex />} />
-            <Route path="/nahual/:slug" element={<NahualPage />} />
-            <Route path="/resultado/:kinSlug" element={<ResultadoPage />} />
-            <Route path="/kin" element={<KinIndex />} />
-            <Route path="/kin/:kinSlug" element={<KinPage />} />
-            <Route path="/admin" element={<Admin />} />
-            <Route path="/admin/login" element={<AdminLogin />} />
-            <Route path="/admin/reset-password" element={<ResetPassword />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </QueryClientProvider>
-  </HelmetProvider>
+    <HelmetProvider>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Suspense fallback={<RoutesSuspenseFallback />}>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/nahuales" element={<NahualesIndex />} />
+                <Route path="/nahual/:slug" element={<NahualPage />} />
+                <Route path="/resultado/:kinSlug" element={<ResultadoPage />} />
+                <Route path="/kin" element={<KinIndex />} />
+                <Route path="/kin/:kinSlug" element={<KinPage />} />
+                <Route path="/admin" element={<Admin />} />
+                <Route path="/admin/login" element={<AdminLogin />} />
+                <Route path="/admin/reset-password" element={<ResetPassword />} />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Suspense>
+          </BrowserRouter>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </HelmetProvider>
   </ErrorBoundary>
 );
 

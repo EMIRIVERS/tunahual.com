@@ -203,7 +203,7 @@ export default function ResultadoPage() {
     .filter(Boolean)
     .join('&');
   
-  const ogImageUrl = `https://tu-nahual.vercel.app/og-image.png`;
+  const ogImageUrl = `https://tunahual.com/og-image.png`;
 
   return (
     <>

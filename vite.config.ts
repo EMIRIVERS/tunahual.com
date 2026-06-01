@@ -15,4 +15,17 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          "vendor-core": ["react", "react-dom", "react-router-dom", "react-helmet-async"],
+          "vendor-animation": ["framer-motion"],
+          "vendor-charts": ["recharts"],
+          "vendor-db": ["@supabase/supabase-js"],
+          "vendor-data": ["@tanstack/react-query", "react-hook-form", "@hookform/resolvers", "zod"],
+        },
+      },
+    },
+  },
 }));

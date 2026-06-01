@@ -227,6 +227,11 @@ export default function KinPage() {
         <meta property="og:description" content={pageDesc} />
         <meta property="og:url" content={`https://tunahual.com/kin/${kinSlug}`} />
         <meta property="og:type" content="article" />
+        <meta property="og:image" content="https://tunahual.com/og-image.png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:image" content="https://tunahual.com/og-image.png" />
         <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
         <script type="application/ld+json">{JSON.stringify(breadcrumbData)}</script>
         <script type="application/ld+json">{JSON.stringify(faqData)}</script>
