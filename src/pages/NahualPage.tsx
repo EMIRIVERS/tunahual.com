@@ -436,18 +436,18 @@ export default function NahualPage() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/20 rounded-3xl p-6 text-center mb-12"
+            className="bg-card/60 border border-border/60 rounded-3xl p-8 text-center mb-12"
           >
-            <h2 className="text-2xl font-bold mb-2">Descubre tu propio Nahual</h2>
-            <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-              Calcula gratis tu signo maya por fecha de nacimiento y conoce tu Cruz Maya completa
+            <h2 className="font-serif text-3xl font-semibold mb-3">Descubre tu propio Nahual</h2>
+            <p className="text-muted-foreground mb-6 max-w-md mx-auto leading-relaxed">
+              Conoce tu signo maya por fecha de nacimiento y tu Cruz Maya completa
+              de nueve posiciones.
             </p>
             <Link to="/">
               <Button variant="default" className="rounded-full" size="lg">
                 Calcular mi Nahual →
               </Button>
             </Link>
-            <p className="text-xs text-muted-foreground mt-3">Gratis · Tarda 30 segundos</p>
           </motion.div>
 
           {/* Navigation */}

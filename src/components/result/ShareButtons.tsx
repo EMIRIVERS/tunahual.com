@@ -32,7 +32,7 @@ export const ShareButtons = memo(function ShareButtons({ result, cross }: ShareB
   const shareUrl = `${window.location.origin}/resultado/${result.tone.numero}-${nahualSlug}${crossParams ? `?${crossParams}` : ''}`;
 
   const handleShareWhatsApp = () => {
-    const text = `🌟 Descubrí que mi Nahual Maya es *${result.tone.numero} ${result.nahual.nombre}*\n\n${result.nahual.descripcion?.substring(0, 80)}...\n\n✨ Calcula el tuyo gratis:`;
+    const text = `🌟 Mi Nahual Maya es *${result.tone.numero} ${result.nahual.nombre}*\n\n${result.nahual.descripcion?.substring(0, 80)}...\n\n✨ Descubre el tuyo:`;
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(`${text}\n${shareUrl}`)}`;
     window.open(whatsappUrl, '_blank');
   };
@@ -43,7 +43,7 @@ export const ShareButtons = memo(function ShareButtons({ result, cross }: ShareB
   };
 
   const handleShareInstagram = async () => {
-    const text = `🌟 Descubrí que mi Nahual Maya es ${result.tone.numero} ${result.nahual.nombre}\n\n${result.nahual.descripcion?.substring(0, 80)}...\n\n✨ Calcula el tuyo gratis: ${shareUrl}`;
+    const text = `🌟 Mi Nahual Maya es ${result.tone.numero} ${result.nahual.nombre}\n\n${result.nahual.descripcion?.substring(0, 80)}...\n\n✨ Descubre el tuyo: ${shareUrl}`;
     await navigator.clipboard.writeText(text);
     setCopiedInstagram(true);
     toast({ title: '¡Texto copiado!', description: 'Ábrelo en Instagram Stories' });

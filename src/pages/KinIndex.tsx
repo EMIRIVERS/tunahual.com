@@ -243,7 +243,7 @@ export default function KinIndex() {
               Tu fecha de nacimiento determina tu Kin personal, que revela tu misión de vida y 
               características según la cosmovisión Maya. 
               <Link to="/" className="text-primary hover:underline ml-1">
-                Calcula tu Nahual ahora →
+                Descubre tu Nahual →
               </Link>
             </p>
           </section>

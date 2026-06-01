@@ -130,7 +130,7 @@ export function MayanResultModal({
                     whileHover={{ scale: 1.01 }}
                     className="p-4 rounded-2xl bg-primary/5 border border-primary/10"
                   >
-                    <h4 className="font-semibold text-foreground mb-3">Significado de {result.nahual.nombre}</h4>
+                    <h4 className="font-serif text-lg font-semibold text-foreground mb-3">Significado de {result.nahual.nombre}</h4>
                     <p className="text-sm text-muted-foreground leading-relaxed">
                       {result.nahual.descripcion}
                     </p>
@@ -158,26 +158,24 @@ export function MayanResultModal({
                 <ShareButtons result={result} cross={cross} />
                 <motion.div
                   variants={itemVariants}
-                  className="rounded-2xl p-4 bg-primary/10 border border-primary/20 flex flex-col gap-3"
+                  className="rounded-2xl p-6 bg-card/60 border border-border/60 text-center flex flex-col items-center gap-3"
                 >
-                  <div className="flex items-start gap-3">
-                    <Star className="w-5 h-5 text-primary mt-0.5 shrink-0" />
-                    <div>
-                      <p className="font-semibold text-foreground text-sm">
-                        ¿Quieres profundizar en tu nahual?
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                        Descubre los programas y meditaciones de Azul Anaité diseñados para tu energía
-                      </p>
-                    </div>
-                  </div>
+                  <Star className="w-5 h-5 text-primary/70" />
+                  <p className="font-serif text-xl text-foreground">
+                    Tu camino apenas comienza
+                  </p>
+                  <p className="text-sm text-muted-foreground leading-relaxed max-w-sm">
+                    La tradición maya k'iche' es vasta. En Azul Anaité acompañamos
+                    a quienes desean caminarla con profundidad.
+                  </p>
                   <a
                     href="https://azulanaite.com"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-full inline-flex items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-medium py-2.5 px-4 hover:bg-primary/90 transition-colors"
+                    className="inline-flex items-center gap-1.5 text-sm font-medium text-primary border-b border-primary/40 pb-0.5 hover:border-primary transition-colors mt-1"
                   >
-                    Explorar Azul Anaité →
+                    Conoce Azul Anaité
+                    <span aria-hidden>→</span>
                   </a>
                 </motion.div>
                 <Button

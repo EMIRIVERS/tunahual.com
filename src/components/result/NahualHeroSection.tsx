@@ -80,30 +80,20 @@ export const NahualHeroSection = memo(function NahualHeroSection({
             {formattedDate}
           </motion.p>
           
-          <motion.div 
+          <motion.div
             className="flex items-baseline gap-3"
             initial={{ opacity: 0, scale: 0.5 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
           >
-            <motion.span 
-              className="text-5xl font-bold text-primary drop-shadow-md"
-              animate={{ 
-                textShadow: [
-                  "0 0 0px hsl(var(--primary))",
-                  "0 0 20px hsl(var(--primary))",
-                  "0 0 0px hsl(var(--primary))",
-                ]
-              }}
-              transition={{ duration: 2, repeat: Infinity }}
-            >
+            <span className="font-serif text-6xl font-semibold text-primary drop-shadow-md">
               {result.tone.numero}
-            </motion.span>
-            <span className="text-4xl font-bold text-foreground drop-shadow-md">{result.nahual.nombre}</span>
+            </span>
+            <span className="font-serif text-5xl font-semibold text-foreground drop-shadow-md">{result.nahual.nombre}</span>
           </motion.div>
-          
-          <motion.p 
-            className="text-lg text-foreground/80 mt-1 drop-shadow-sm"
+
+          <motion.p
+            className="text-base text-foreground/80 mt-2 tracking-wide drop-shadow-sm"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.6 }}

@@ -32,10 +32,10 @@ export const NahualPreview = memo(function NahualPreview({ result }: NahualPrevi
         </div>
 
         <div className="flex-1 min-w-0">
-          <div className="text-primary text-xs font-medium mb-1">
-            <span>Tu Nahual es</span>
+          <div className="text-primary/70 text-[0.65rem] uppercase tracking-[0.2em] font-medium mb-1">
+            <span>Tu Nahual</span>
           </div>
-          <h3 className="text-lg font-bold text-foreground truncate">
+          <h3 className="font-serif text-2xl font-semibold text-foreground truncate leading-tight">
             {result.tone.numero} {result.nahual.nombre}
           </h3>
           <p className="text-xs text-muted-foreground line-clamp-1">

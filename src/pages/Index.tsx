@@ -12,7 +12,6 @@ import { Calendar, ArrowLeft, Loader2, Globe } from "lucide-react";
 import logo from "@/assets/logo-azul-anaite.png";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { SocialProofCounter } from "@/components/SocialProofCounter";
 
 // Lazy load heavy modals - critical for LCP
 const MayanResultModal = lazy(() => 
@@ -250,32 +249,31 @@ const Index = () => {
             <div className="w-full max-w-[min(28rem,calc(100vw-2rem))] space-y-4 animate-fade-in">
               {/* Welcome Section */}
               <div className="text-center space-y-3">
-                <h1 className="text-xl sm:text-3xl font-bold text-foreground tracking-tight">
+                <p className="text-[0.7rem] uppercase tracking-[0.25em] text-primary/70 font-medium">
+                  Calendario sagrado Cholq'ij
+                </p>
+                <h1 className="font-serif text-4xl sm:text-5xl font-semibold text-foreground tracking-tight leading-[1.05]">
                   Descubre tu Nahual
                 </h1>
-                <p className="text-sm sm:text-base text-muted-foreground max-w-sm mx-auto">
-                  Ingresa tu fecha de nacimiento para calcular tu signo maya{" "}
-                  <span className="font-semibold text-primary">GRATIS</span> en el calendario sagrado Cholq'ij
+                <p className="text-sm sm:text-base text-muted-foreground max-w-sm mx-auto leading-relaxed">
+                  La energía del día en que naciste, leída a través de la
+                  cuenta sagrada maya k'iche'.
                 </p>
-
-                {/* Social Proof Counter */}
-                <SocialProofCounter baseCount={10000} />
               </div>
 
-              {/* Why it matters section - optimized */}
-              <div className="relative overflow-hidden bg-gradient-to-br from-primary/10 via-primary/5 to-accent/10 border border-primary/30 rounded-xl p-4 text-left space-y-2 shadow-lg">
-                <h2 className="text-sm sm:text-base font-semibold text-primary">
+              {/* Why it matters section - editorial */}
+              <div className="relative overflow-hidden bg-card/60 border border-border/60 rounded-2xl p-5 text-left space-y-3">
+                <h2 className="font-serif text-lg sm:text-xl font-semibold text-foreground">
                   ¿Por qué conocer tu Nahual?
                 </h2>
                 <p className="text-sm text-foreground/80 leading-relaxed">
                   La energía del día que naciste revela información
                   importante. Es el mapa para que recuerdes quién eres, a qué
-                  has venido, descubras cuáles son tus dones, virtudes y
+                  has venido, y descubras cuáles son tus dones, virtudes y
                   desafíos en la vida.
                 </p>
-                <p className="text-sm text-muted-foreground italic border-l-2 border-primary/40 pl-3">
-                  Te muestra un mapa preciso para que recuerdes quién naciste
-                  siendo.
+                <p className="text-sm text-muted-foreground italic border-l-2 border-primary/40 pl-4 leading-relaxed">
+                  Un mapa preciso para que recuerdes quién naciste siendo.
                 </p>
               </div>
 
@@ -418,7 +416,7 @@ const Index = () => {
 
           {/* Copyright */}
           <p className="text-xs text-muted-foreground">
-            © 2025 Azul Anaité · azulanaite.com
+            © 2026 Azul Anaité · azulanaite.com
           </p>
         </footer>
 

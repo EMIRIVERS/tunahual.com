@@ -7,9 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { User, Mail, Phone, Loader2 } from "lucide-react";
 import { z } from "zod";
 import { TermsModal } from "./TermsModal";
-import { FormProgressBar } from "./FormProgressBar";
 import { NahualPreview } from "./NahualPreview";
-import { PriceAnchor } from "./PriceAnchor";
 import { ValidatedInput } from "./ValidatedInput";
 import { MayanKinDB } from "@/utils/mayanCalculations";
 
@@ -132,22 +130,20 @@ export const LeadCaptureModal = memo(function LeadCaptureModal({
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 pointer-events-none" />
 
         <div className="relative z-10 animate-fade-in space-y-4">
-          {/* Progress Bar */}
-          <FormProgressBar currentStep={2} totalSteps={2} />
-
-          <DialogHeader className="text-center space-y-3 pb-2">
-            <DialogTitle className="text-xl font-bold text-foreground">
-              ¡Tu lectura está lista!
+          <DialogHeader className="text-center space-y-3 pb-2 pt-2">
+            <p className="text-[0.65rem] uppercase tracking-[0.25em] text-primary/70 font-medium">
+              Tu lectura del Cholq'ij
+            </p>
+            <DialogTitle className="font-serif text-3xl font-semibold text-foreground">
+              Tu energía está revelada
             </DialogTitle>
-            
-            {/* Nahual Preview - Reciprocity principle */}
+
+            {/* Nahual Preview */}
             {nahualPreview && <NahualPreview result={nahualPreview} />}
-            
-            {/* Price Anchor */}
-            <PriceAnchor />
-            
-            <p className="text-sm text-muted-foreground">
-              Ingresa tus datos para recibir tu lectura completa
+
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Dinos a dónde enviar tu lectura completa y guardaremos tu mapa
+              maya para que puedas volver a él cuando lo necesites.
             </p>
           </DialogHeader>
 
@@ -308,7 +304,7 @@ export const LeadCaptureModal = memo(function LeadCaptureModal({
               >
                 <span className="flex items-center justify-center gap-2">
                   {isSubmitting && <Loader2 className="w-5 h-5 animate-spin" />}
-                  {isSubmitting ? "Consultando calendario sagrado..." : "Ver mi lectura GRATIS"}
+                  {isSubmitting ? "Consultando el calendario sagrado..." : "Revelar mi lectura"}
                 </span>
               </Button>
             </div>
