@@ -121,7 +121,7 @@ export default function NahualPage() {
   return (
     <>
       <Helmet>
-        <title>{nahual.nombre} - Nahual Maya | Descubre tu Signo del Calendario Cholq'ij</title>
+        <title>{`${nahual.nombre} - Nahual Maya | Descubre tu Signo del Calendario Cholq'ij`}</title>
         <meta name="description" content={`${nahual.nombre} significa ${nahual.significado}. ${nahual.descripcion.slice(0, 150)}... Descubre las cualidades, elemento y misión espiritual de este Nahual Maya.`} />
         <meta property="og:title" content={`${nahual.nombre} - Nahual del Calendario Maya Cholq'ij`} />
         <meta property="og:description" content={nahual.descripcion.slice(0, 200)} />

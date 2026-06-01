@@ -208,7 +208,7 @@ export default function ResultadoPage() {
   return (
     <>
       <Helmet>
-        <title>{tono.numero} {nahual.nombre} - Tu Nahual Maya | Calculadora Cholq'ij</title>
+        <title>{`${tono.numero} ${nahual.nombre} - Tu Nahual Maya | Calculadora Cholq'ij`}</title>
         <meta name="description" content={`Tu Nahual Maya es ${tono.numero} ${nahual.nombre}. El tono ${tono.nombre} te da ${tono.significado.toLowerCase()}. El nahual ${nahual.nombre} significa ${nahual.significado.toLowerCase()}. Descubre tu misión de vida.`} />
         <meta property="og:title" content={`Mi Nahual Maya: ${tono.numero} ${nahual.nombre}`} />
         <meta property="og:description" content={`Descubre qué significa tener el Nahual ${tono.numero} ${nahual.nombre} según el calendario sagrado Maya Cholq'ij.`} />
