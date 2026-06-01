@@ -5,6 +5,21 @@ import type { Database } from './types';
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
+// Las variables VITE_* se incrustan en tiempo de BUILD. Si faltan al compilar
+// (p. ej. no están configuradas en Vercel), createClient lanzaría un error opaco
+// y la app quedaría en pantalla blanca. Fallamos con un mensaje claro y accionable.
+if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
+  const faltantes = [
+    !SUPABASE_URL && 'VITE_SUPABASE_URL',
+    !SUPABASE_PUBLISHABLE_KEY && 'VITE_SUPABASE_PUBLISHABLE_KEY',
+  ].filter(Boolean).join(', ');
+  throw new Error(
+    `[Supabase] Faltan variables de entorno: ${faltantes}. ` +
+    `Configúralas en tu proveedor (Vercel → Settings → Environment Variables) ` +
+    `y vuelve a desplegar (Vite las necesita en el build, no en runtime).`
+  );
+}
+
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
