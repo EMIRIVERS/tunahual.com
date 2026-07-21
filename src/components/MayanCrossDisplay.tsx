@@ -123,7 +123,7 @@ const NahualInfoModal = ({
               <span className="text-sm font-medium">{nahual.lugar_poder}</span>
             </div>
             <div className="p-3 rounded-xl bg-card border border-border/50">
-              <p className="text-xs text-muted-foreground mb-1">Animal Guía</p>
+              <p className="text-xs text-muted-foreground mb-1">Glifo</p>
               <span className="text-sm font-medium">{nahual.animal_guia}</span>
             </div>
           </div>

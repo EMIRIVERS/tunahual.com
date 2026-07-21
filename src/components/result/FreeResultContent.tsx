@@ -22,7 +22,7 @@ export const FreeResultContent = memo(function FreeResultContent({ result }: Fre
       variants={itemVariants}
       className="space-y-4"
     >
-      {/* Animal Guía */}
+      {/* Glifo */}
       <motion.div
         variants={itemVariants}
         className="p-4 rounded-2xl bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/20"
@@ -32,7 +32,7 @@ export const FreeResultContent = memo(function FreeResultContent({ result }: Fre
             <Leaf className="w-6 h-6 text-primary" />
           </div>
           <div>
-            <p className="text-xs text-muted-foreground">Tu Animal Guía</p>
+            <p className="text-xs text-muted-foreground">Tu Glifo</p>
             <p className="font-semibold text-foreground">{result.nahual.animal_guia}</p>
           </div>
         </div>

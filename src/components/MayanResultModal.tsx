@@ -7,12 +7,15 @@ import { useMayanData } from "@/hooks/useMayanData";
 import { getNahualConocimiento } from "@/data/mayanKnowledge";
 import { X, Heart, Grid3X3, BookOpen, Star, Mail, Check } from "lucide-react";
 import { MayanCrossDisplay } from "./MayanCrossDisplay";
-import { OptimizedParticles, OptimizedGlowingOrbs } from "./OptimizedParticles";
+import cornIcon from "@/assets/icons/corn.svg";
 
 // Refactored components
 import { NahualHeroSection } from "./result/NahualHeroSection";
 import { AnimalGuiaCard, TrecenaCard } from "./result/AnimalGuiaCard";
-import { NahualQualitiesBadges } from "./result/NahualQualitiesBadges";
+import { CargadorCard } from "./result/CargadorCard";
+import { CARGADOR_HABILITADO } from "@/utils/cargador";
+import { CualidadesRow, SombrasList } from "./result/NahualQualitiesBadges";
+import { TonoSpotlightCard } from "./result/TonoSpotlightCard";
 import { NahualAttributesGrid } from "./result/NahualAttributesGrid";
 import { ConocimientoProfundoTab } from "./result/ConocimientoProfundoTab";
 import { ShareButtons } from "./result/ShareButtons";
@@ -55,7 +58,7 @@ export function MayanResultModal({
   leadSubmitted,
   emailSent,
 }: MayanResultModalProps) {
-  const { nahuales } = useMayanData();
+  const { nahuales, tonos } = useMayanData();
 
   // Get expanded knowledge for this Nahual
   const conocimientoExpandido = result ? getNahualConocimiento(result.nahual.nombre) : null;
@@ -97,28 +100,52 @@ export function MayanResultModal({
             exit="exit"
             className="space-y-6 relative"
           >
-            {/* Background effects */}
-            <OptimizedParticles />
-            <OptimizedGlowingOrbs />
-
             {/* Hero Section */}
             <NahualHeroSection result={result} formattedDate={formattedDate} />
+
+            <motion.div variants={itemVariants} className="flex items-center gap-3 px-10 -mt-2 opacity-50" aria-hidden="true">
+              <div className="h-px flex-1 bg-primary/40" />
+              <span className="text-primary text-xs rotate-45">◆</span>
+              <div className="h-px flex-1 bg-primary/40" />
+            </motion.div>
+
+            {/* Marco: cómo se combinan el tono y el nahual de este día */}
+            <motion.div
+              variants={itemVariants}
+              className="mx-6 p-5 rounded-2xl bg-primary/5 border-l-4 border-primary/40"
+            >
+              <p className="text-sm leading-relaxed text-foreground/90">
+                El tono <strong className="font-medium">{result.tone.nombre}</strong> te da{" "}
+                {result.tone.significado?.toLowerCase()}. El nahual{" "}
+                <strong className="font-medium">{result.nahual.nombre}</strong> significa{" "}
+                {result.nahual.significado?.toLowerCase()}.
+              </p>
+            </motion.div>
 
             {/* Tabs for different sections */}
             <div className="px-6 pb-6 relative z-10">
               <Tabs defaultValue="nacimiento" className="w-full">
-                <TabsList className="grid w-full grid-cols-3 mb-6">
-                  <TabsTrigger value="nacimiento" className="text-xs sm:text-sm">
+                <TabsList className="w-full justify-start gap-6 mb-6 h-auto bg-transparent p-0 border-b border-border rounded-none">
+                  <TabsTrigger
+                    value="nacimiento"
+                    className="text-xs sm:text-sm px-0 pb-3 rounded-none bg-transparent shadow-none border-b-2 border-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-primary data-[state=active]:text-primary"
+                  >
                     <Heart className="w-4 h-4 mr-1 sm:mr-2" />
                     <span className="hidden sm:inline">Nacimiento</span>
                     <span className="sm:hidden">Nahual</span>
                   </TabsTrigger>
-                  <TabsTrigger value="cruz" className="text-xs sm:text-sm">
+                  <TabsTrigger
+                    value="cruz"
+                    className="text-xs sm:text-sm px-0 pb-3 rounded-none bg-transparent shadow-none border-b-2 border-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-primary data-[state=active]:text-primary"
+                  >
                     <Grid3X3 className="w-4 h-4 mr-1 sm:mr-2" />
                     <span className="hidden sm:inline">Cruz Maya</span>
                     <span className="sm:hidden">Cruz</span>
                   </TabsTrigger>
-                  <TabsTrigger value="profundo" className="text-xs sm:text-sm">
+                  <TabsTrigger
+                    value="profundo"
+                    className="text-xs sm:text-sm px-0 pb-3 rounded-none bg-transparent shadow-none border-b-2 border-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-primary data-[state=active]:text-primary"
+                  >
                     <BookOpen className="w-4 h-4 mr-1 sm:mr-2" />
                     <span className="hidden sm:inline">Conocimiento</span>
                     <span className="sm:hidden">Más</span>
@@ -127,17 +154,30 @@ export function MayanResultModal({
 
                 {/* Tab: Nacimiento */}
                 <TabsContent value="nacimiento" className="space-y-6 mt-0">
+                  <CualidadesRow result={result} />
+                  <TonoSpotlightCard result={result} />
+                  <SombrasList result={result} />
                   <AnimalGuiaCard result={result} />
                   {trecenaNahual && <TrecenaCard trecenaNahual={trecenaNahual} />}
-                  <NahualQualitiesBadges result={result} />
+                  {CARGADOR_HABILITADO && birthDate && (
+                    <CargadorCard birthDate={birthDate} nahuales={nahuales} tonos={tonos} />
+                  )}
                   <NahualAttributesGrid result={result} />
                   <motion.div
                     variants={itemVariants}
-                    whileHover={{ scale: 1.01 }}
-                    className="p-4 rounded-2xl bg-primary/5 border border-primary/10"
+                    className="relative overflow-hidden rounded-2xl p-6 bg-gradient-to-br from-[#3a1f38] to-[#1c0f1c] border border-[#5c3158]/50"
                   >
-                    <h4 className="font-serif text-lg font-semibold text-foreground mb-3">Significado de {result.nahual.nombre}</h4>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
+                    <img
+                      src={cornIcon}
+                      alt=""
+                      aria-hidden="true"
+                      className="absolute -bottom-6 -right-6 w-32 h-32 opacity-20 pointer-events-none"
+                    />
+                    <p className="eyebrow text-[#d4a574]/70 text-center mb-1">Significado</p>
+                    <h4 className="font-serif text-2xl text-[#f4efc5] text-center mb-4">
+                      {result.nahual.nombre}
+                    </h4>
+                    <p className="relative z-10 text-sm text-[#f4efc5]/85 leading-relaxed">
                       {result.nahual.descripcion}
                     </p>
                   </motion.div>
@@ -151,9 +191,9 @@ export function MayanResultModal({
                 {/* Tab: Conocimiento Profundo */}
                 <TabsContent value="profundo" className="mt-0">
                   {conocimientoExpandido && (
-                    <ConocimientoProfundoTab 
-                      conocimiento={conocimientoExpandido} 
-                      nahualNombre={result.nahual.nombre} 
+                    <ConocimientoProfundoTab
+                      conocimiento={conocimientoExpandido}
+                      nahualNombre={result.nahual.nombre}
                     />
                   )}
                 </TabsContent>

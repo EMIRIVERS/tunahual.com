@@ -11,26 +11,26 @@ interface LeadsStatsProps {
 const COLORS = ['hsl(35, 60%, 40%)', 'hsl(52, 65%, 50%)', 'hsl(0, 60%, 50%)', 'hsl(200, 60%, 50%)', 'hsl(120, 40%, 45%)', 'hsl(280, 50%, 50%)', 'hsl(30, 70%, 50%)', 'hsl(180, 50%, 45%)'];
 
 const nahualData: Record<string, { puntoCardinal: string; colorMaiz: string; elemento: string }> = {
-  'Imox': { puntoCardinal: 'Este', colorMaiz: 'Negro', elemento: 'Agua' },
+  'Imox': { puntoCardinal: 'Este', colorMaiz: 'Rojo', elemento: 'Agua' },
   "Iq'": { puntoCardinal: 'Norte', colorMaiz: 'Blanco', elemento: 'Aire' },
   "Aq'ab'al": { puntoCardinal: 'Oeste', colorMaiz: 'Negro', elemento: 'Luz y Oscuridad' },
   "K'at": { puntoCardinal: 'Sur', colorMaiz: 'Amarillo', elemento: 'Fuego' },
   'Kan': { puntoCardinal: 'Este', colorMaiz: 'Rojo', elemento: 'Fuego' },
-  'Kame': { puntoCardinal: 'Norte', colorMaiz: 'Negro', elemento: 'Tierra' },
-  'Kej': { puntoCardinal: 'Oeste', colorMaiz: 'Blanco', elemento: 'Aire' },
+  'Kame': { puntoCardinal: 'Norte', colorMaiz: 'Blanco', elemento: 'Tierra' },
+  'Kej': { puntoCardinal: 'Oeste', colorMaiz: 'Negro', elemento: 'Aire' },
   "Q'anil": { puntoCardinal: 'Sur', colorMaiz: 'Amarillo', elemento: 'Tierra' },
   'Toj': { puntoCardinal: 'Este', colorMaiz: 'Rojo', elemento: 'Fuego' },
   "Tz'i'": { puntoCardinal: 'Norte', colorMaiz: 'Blanco', elemento: 'Agua' },
-  "B'atz'": { puntoCardinal: 'Oeste', colorMaiz: 'Rojo', elemento: 'Aire' },
-  'E': { puntoCardinal: 'Sur', colorMaiz: 'Negro', elemento: 'Tierra' },
-  'Aj': { puntoCardinal: 'Este', colorMaiz: 'Amarillo', elemento: 'Fuego' },
-  "I'x": { puntoCardinal: 'Norte', colorMaiz: 'Negro', elemento: 'Tierra' },
-  "Tz'ikin": { puntoCardinal: 'Oeste', colorMaiz: 'Amarillo', elemento: 'Aire' },
+  "B'atz'": { puntoCardinal: 'Oeste', colorMaiz: 'Negro', elemento: 'Aire' },
+  'E': { puntoCardinal: 'Sur', colorMaiz: 'Amarillo', elemento: 'Tierra' },
+  'Aj': { puntoCardinal: 'Este', colorMaiz: 'Rojo', elemento: 'Fuego' },
+  "I'x": { puntoCardinal: 'Norte', colorMaiz: 'Blanco', elemento: 'Tierra' },
+  "Tz'ikin": { puntoCardinal: 'Oeste', colorMaiz: 'Negro', elemento: 'Aire' },
   'Ajmaq': { puntoCardinal: 'Sur', colorMaiz: 'Amarillo', elemento: 'Tierra' },
-  "No'j": { puntoCardinal: 'Este', colorMaiz: 'Blanco', elemento: 'Aire' },
-  'Tijax': { puntoCardinal: 'Norte', colorMaiz: 'Rojo', elemento: 'Fuego' },
+  "No'j": { puntoCardinal: 'Este', colorMaiz: 'Rojo', elemento: 'Aire' },
+  'Tijax': { puntoCardinal: 'Norte', colorMaiz: 'Blanco', elemento: 'Fuego' },
   'Kawoq': { puntoCardinal: 'Oeste', colorMaiz: 'Negro', elemento: 'Agua' },
-  'Ajpu': { puntoCardinal: 'Sur', colorMaiz: 'Rojo', elemento: 'Fuego' },
+  'Ajpu': { puntoCardinal: 'Sur', colorMaiz: 'Amarillo', elemento: 'Fuego' },
 };
 
 export function LeadsStats({ leads }: LeadsStatsProps) {
@@ -226,7 +226,7 @@ export function LeadsStats({ leads }: LeadsStatsProps) {
         <Card>
           <CardHeader>
             <CardTitle>Colores de Maíz</CardTitle>
-            <CardDescription>Los 5 colores sagrados</CardDescription>
+            <CardDescription>Los 4 colores sagrados</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="h-64">
@@ -246,8 +246,7 @@ export function LeadsStats({ leads }: LeadsStatsProps) {
                         'Rojo': '#dc2626',
                         'Negro': '#1f2937',
                         'Blanco': '#f3f4f6',
-                        'Amarillo': '#eab308',
-                        'Gris': '#9ca3af'
+                        'Amarillo': '#eab308'
                       };
                       return <Cell key={`cell-${index}`} fill={colorMap[entry.name] || COLORS[index]} />;
                     })}

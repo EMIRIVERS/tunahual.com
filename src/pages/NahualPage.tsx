@@ -278,7 +278,7 @@ export default function NahualPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <p className="text-sm text-muted-foreground">Animal Guía</p>
+                  <p className="text-sm text-muted-foreground">Glifo</p>
                   <p className="font-medium">{nahual.animal_guia}</p>
                 </div>
                 <Separator />

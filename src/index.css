@@ -120,6 +120,11 @@
     margin-left: auto;
     margin-right: auto;
   }
+
+  /* Small tracked-caps label, used for section/attribute headers */
+  .eyebrow {
+    @apply text-[11px] uppercase tracking-[0.18em] font-medium;
+  }
 }
 
 /* Respect users who prefer reduced motion — signal of a serious product */

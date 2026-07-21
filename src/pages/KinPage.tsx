@@ -354,7 +354,7 @@ export default function KinPage() {
                 <p className="text-muted-foreground mb-4">{nahual.descripcion}</p>
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div><p className="text-muted-foreground">Elemento</p><p className="font-medium">{nahual.elemento}</p></div>
-                  <div><p className="text-muted-foreground">Animal Guía</p><p className="font-medium">{nahual.animal_guia}</p></div>
+                  <div><p className="text-muted-foreground">Glifo</p><p className="font-medium">{nahual.animal_guia}</p></div>
                   <div><p className="text-muted-foreground">Color de Maíz</p><p className="font-medium">{nahual.color_maiz}</p></div>
                   <div><p className="text-muted-foreground">Punto Cardinal</p><p className="font-medium">{nahual.punto_cardinal}</p></div>
                 </div>
@@ -427,7 +427,7 @@ export default function KinPage() {
             
             <h3>El Nahual {nahual.nombre}</h3>
             <p>
-              {nahual.descripcion} Su animal guía es el {nahual.animal_guia} y está asociado con el punto 
+              {nahual.descripcion} Su glifo es {nahual.animal_guia} y está asociado con el punto 
               cardinal {nahual.punto_cardinal} y el color de maíz {nahual.color_maiz}.
             </p>
 

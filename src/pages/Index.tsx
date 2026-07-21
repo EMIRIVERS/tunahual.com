@@ -9,10 +9,15 @@ import {
   MayanCrossDB,
 } from "@/utils/mayanCalculations";
 import { Calendar, ArrowLeft, Loader2, Globe } from "lucide-react";
+import { EnergiaDelDia } from "@/components/EnergiaDelDia";
 import logo from "@/assets/logo-azul-anaite.png";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { trackEvent } from "@/lib/analytics";
+
+// Video de fondo de toda la pantalla — public/videos/fondo-tu-nahual.mp4.
+// Si no existe (404) o el usuario prefiere movimiento reducido, cae al patrón maya (.index-bg).
+const BG_VIDEO_SRC = "/videos/fondo-tu-nahual.mp4";
 
 // Lazy load heavy modals - critical for LCP
 const MayanResultModal = lazy(() => 
@@ -33,7 +38,12 @@ const Index = () => {
   const [isSubmittingLead, setIsSubmittingLead] = useState(false);
   const [leadSubmitted, setLeadSubmitted] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
-  
+  const [bgVideoFailed, setBgVideoFailed] = useState(false);
+  const heroReducedMotion =
+    typeof window !== "undefined" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const showBgVideo = !bgVideoFailed && !heroReducedMotion;
+
   const { toast } = useToast();
 
   const { nahuales, tonos, loading: loadingData } = useMayanData();
@@ -203,14 +213,14 @@ const Index = () => {
     <>
       <Helmet>
         <title>Calculadora Maya Gratis: Descubre tu Nahual y Signo Maya | Cholq'ij</title>
-        <meta name="description" content="Calcula tu Nahual Maya GRATIS por fecha de nacimiento. Descubre tu signo del calendario sagrado Cholq'ij, tu Tono y tu Cruz Maya completa de 9 posiciones." />
+        <meta name="description" content="Calcula tu Nahual Maya por fecha de nacimiento. Descubre tu signo del calendario sagrado Cholq'ij, tu Tono y tu Cruz Maya completa de 9 posiciones." />
         <link rel="canonical" href="https://tunahual.com/" />
         
         {/* Open Graph / Facebook */}
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://tunahual.com/" />
         <meta property="og:title" content="Calculadora Maya Gratis: Descubre tu Nahual y Signo Maya" />
-        <meta property="og:description" content="Calcula tu Nahual Maya GRATIS por fecha de nacimiento. Descubre tu signo del calendario sagrado Cholq'ij, tu Tono y tu Cruz Maya completa." />
+        <meta property="og:description" content="Calcula tu Nahual Maya por fecha de nacimiento. Descubre tu signo del calendario sagrado Cholq'ij, tu Tono y tu Cruz Maya completa." />
         <meta property="og:image" content="https://tunahual.com/og-image.png" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
@@ -221,7 +231,7 @@ const Index = () => {
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:url" content="https://tunahual.com/" />
         <meta name="twitter:title" content="Calculadora Maya Gratis: Descubre tu Nahual y Signo Maya" />
-        <meta name="twitter:description" content="Calcula tu Nahual Maya GRATIS por fecha de nacimiento. Descubre tu signo del calendario sagrado Cholq'ij." />
+        <meta name="twitter:description" content="Calcula tu Nahual Maya por fecha de nacimiento. Descubre tu signo del calendario sagrado Cholq'ij." />
         <meta name="twitter:image" content="https://tunahual.com/og-image.png" />
         
         {/* Additional SEO */}
@@ -231,8 +241,25 @@ const Index = () => {
       </Helmet>
 
       <div className="fixed inset-0 bg-background flex flex-col touch-manipulation index-bg">
+        {/* Background video - reemplaza el patrón maya cuando está disponible */}
+        {showBgVideo && (
+          <video
+            className="absolute inset-0 w-full h-full object-cover"
+            src={BG_VIDEO_SRC}
+            autoPlay
+            muted
+            loop
+            playsInline
+            onError={() => setBgVideoFailed(true)}
+          />
+        )}
+
         {/* Overlay - simplified, no blur for better performance */}
-        <div className="absolute inset-0 bg-background/90 pointer-events-none" />
+        <div
+          className={`absolute inset-0 pointer-events-none ${
+            showBgVideo ? "bg-background/60" : "bg-background/90"
+          }`}
+        />
 
         {/* Header - removed backdrop-blur for better INP */}
         <header 
@@ -320,6 +347,9 @@ const Index = () => {
                   Un mapa preciso para que recuerdes quién naciste siendo.
                 </p>
               </div>
+
+              {/* Energía de hoy */}
+              <EnergiaDelDia nahuales={nahuales} tonos={tonos} />
 
               {/* Calculator Card */}
               <div className="bg-card rounded-2xl p-5 shadow-sm border border-border/50">

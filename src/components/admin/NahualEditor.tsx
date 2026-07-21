@@ -159,7 +159,7 @@ export function NahualEditor({ nahuales, onUpdate }: NahualEditorProps) {
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label>Animal Guía</Label>
+                        <Label>Glifo</Label>
                         <Input
                           value={formData.animal_guia || ''}
                           onChange={(e) => setFormData(prev => ({ ...prev, animal_guia: e.target.value }))}

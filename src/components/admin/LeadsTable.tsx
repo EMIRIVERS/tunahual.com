@@ -11,26 +11,26 @@ import { es } from 'date-fns/locale';
 
 // Datos estáticos de nahuales para mostrar información derivada
 const nahualData: Record<string, { puntoCardinal: string; colorMaiz: string; elemento: string; animalGuia: string }> = {
-  'Imox': { puntoCardinal: 'Este', colorMaiz: 'Negro', elemento: 'Agua', animalGuia: 'Cocodrilo' },
+  'Imox': { puntoCardinal: 'Este', colorMaiz: 'Rojo', elemento: 'Agua', animalGuia: 'Lagarto' },
   "Iq'": { puntoCardinal: 'Norte', colorMaiz: 'Blanco', elemento: 'Aire', animalGuia: 'Colibrí' },
   "Aq'ab'al": { puntoCardinal: 'Oeste', colorMaiz: 'Negro', elemento: 'Luz y Oscuridad', animalGuia: 'Murciélago' },
   "K'at": { puntoCardinal: 'Sur', colorMaiz: 'Amarillo', elemento: 'Fuego', animalGuia: 'Araña' },
-  'Kan': { puntoCardinal: 'Este', colorMaiz: 'Rojo', elemento: 'Fuego', animalGuia: 'Serpiente Emplumada' },
-  'Kame': { puntoCardinal: 'Norte', colorMaiz: 'Negro', elemento: 'Tierra', animalGuia: 'Búho' },
-  'Kej': { puntoCardinal: 'Oeste', colorMaiz: 'Blanco', elemento: 'Aire', animalGuia: 'Venado' },
+  'Kan': { puntoCardinal: 'Este', colorMaiz: 'Rojo', elemento: 'Fuego', animalGuia: 'Quétzal' },
+  'Kame': { puntoCardinal: 'Norte', colorMaiz: 'Blanco', elemento: 'Tierra', animalGuia: 'Lechuza' },
+  'Kej': { puntoCardinal: 'Oeste', colorMaiz: 'Negro', elemento: 'Aire', animalGuia: 'Venado' },
   "Q'anil": { puntoCardinal: 'Sur', colorMaiz: 'Amarillo', elemento: 'Tierra', animalGuia: 'Conejo' },
-  'Toj': { puntoCardinal: 'Este', colorMaiz: 'Rojo', elemento: 'Fuego', animalGuia: 'Tiburón' },
+  'Toj': { puntoCardinal: 'Este', colorMaiz: 'Rojo', elemento: 'Fuego', animalGuia: 'Fuego' },
   "Tz'i'": { puntoCardinal: 'Norte', colorMaiz: 'Blanco', elemento: 'Agua', animalGuia: 'Perro/Coyote' },
-  "B'atz'": { puntoCardinal: 'Oeste', colorMaiz: 'Rojo', elemento: 'Aire', animalGuia: 'Mono' },
-  'E': { puntoCardinal: 'Sur', colorMaiz: 'Negro', elemento: 'Tierra', animalGuia: 'Gato/Puma' },
-  'Aj': { puntoCardinal: 'Este', colorMaiz: 'Amarillo', elemento: 'Fuego', animalGuia: 'Armadillo' },
-  "I'x": { puntoCardinal: 'Norte', colorMaiz: 'Negro', elemento: 'Tierra', animalGuia: 'Jaguar' },
-  "Tz'ikin": { puntoCardinal: 'Oeste', colorMaiz: 'Amarillo', elemento: 'Aire', animalGuia: 'Águila/Quetzal' },
+  "B'atz'": { puntoCardinal: 'Oeste', colorMaiz: 'Negro', elemento: 'Aire', animalGuia: 'Mono' },
+  'E': { puntoCardinal: 'Sur', colorMaiz: 'Amarillo', elemento: 'Tierra', animalGuia: 'Gato Montés' },
+  'Aj': { puntoCardinal: 'Este', colorMaiz: 'Rojo', elemento: 'Fuego', animalGuia: 'Armadillo' },
+  "I'x": { puntoCardinal: 'Norte', colorMaiz: 'Blanco', elemento: 'Tierra', animalGuia: 'Jaguar' },
+  "Tz'ikin": { puntoCardinal: 'Oeste', colorMaiz: 'Negro', elemento: 'Aire', animalGuia: 'Águila/Quetzal' },
   'Ajmaq': { puntoCardinal: 'Sur', colorMaiz: 'Amarillo', elemento: 'Tierra', animalGuia: 'Abeja' },
-  "No'j": { puntoCardinal: 'Este', colorMaiz: 'Blanco', elemento: 'Aire', animalGuia: 'Pájaro Carpintero' },
-  'Tijax': { puntoCardinal: 'Norte', colorMaiz: 'Rojo', elemento: 'Fuego', animalGuia: 'Pez Espada' },
+  "No'j": { puntoCardinal: 'Este', colorMaiz: 'Rojo', elemento: 'Aire', animalGuia: 'Pájaro Carpintero' },
+  'Tijax': { puntoCardinal: 'Norte', colorMaiz: 'Blanco', elemento: 'Fuego', animalGuia: 'Cuchillo de Obsidiana' },
   'Kawoq': { puntoCardinal: 'Oeste', colorMaiz: 'Negro', elemento: 'Agua', animalGuia: 'Tortuga' },
-  'Ajpu': { puntoCardinal: 'Sur', colorMaiz: 'Rojo', elemento: 'Fuego', animalGuia: 'Guacamaya' },
+  'Ajpu': { puntoCardinal: 'Sur', colorMaiz: 'Amarillo', elemento: 'Fuego', animalGuia: 'Guardián del Sol' },
 };
 
 interface LeadsTableProps {
@@ -60,7 +60,7 @@ export function LeadsTable({ leads, onRefresh }: LeadsTableProps) {
   );
 
   const generateCSV = (leadsToExport: Lead[]) => {
-    const headers = ['Nombre', 'Email', 'Teléfono', 'Fecha Nacimiento', 'Nahual', 'Tono', 'Kin', 'Punto Cardinal', 'Color Maíz', 'Elemento', 'Animal Guía', 'Fecha Registro'];
+    const headers = ['Nombre', 'Email', 'Teléfono', 'Fecha Nacimiento', 'Nahual', 'Tono', 'Kin', 'Punto Cardinal', 'Color Maíz', 'Elemento', 'Glifo', 'Fecha Registro'];
     const rows = leadsToExport.map(lead => {
       const nahual = lead.nahual ? nahualData[lead.nahual] : null;
       return [
@@ -212,8 +212,7 @@ export function LeadsTable({ leads, onRefresh }: LeadsTableProps) {
                             nahual?.colorMaiz === 'Rojo' ? 'bg-red-100 text-red-800' :
                             nahual?.colorMaiz === 'Negro' ? 'bg-gray-800 text-white' :
                             nahual?.colorMaiz === 'Blanco' ? 'bg-gray-100 text-gray-800' :
-                            nahual?.colorMaiz === 'Amarillo' ? 'bg-yellow-100 text-yellow-800' :
-                            nahual?.colorMaiz === 'Gris' ? 'bg-gray-300 text-gray-800' : ''
+                            nahual?.colorMaiz === 'Amarillo' ? 'bg-yellow-100 text-yellow-800' : ''
                           }
                         >
                           {nahual?.colorMaiz || '-'}

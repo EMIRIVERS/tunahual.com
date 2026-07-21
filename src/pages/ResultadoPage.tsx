@@ -344,7 +344,7 @@ export default function ResultadoPage() {
                     <p className="font-medium">{nahual.elemento}</p>
                   </div>
                   <div>
-                    <p className="text-muted-foreground">Animal Guía</p>
+                    <p className="text-muted-foreground">Glifo</p>
                     <p className="font-medium">{nahual.animal_guia}</p>
                   </div>
                   <div>
