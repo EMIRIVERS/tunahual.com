@@ -50,10 +50,7 @@ const leadSchema = z.object({
   email: z.string().trim().email("Ingresa un email válido").max(255),
   countryCode: z.string().min(1, "Selecciona un código de país"),
   customCountryCode: z.string().optional(),
-  telefono: z.union([
-    z.literal(""),
-    z.string().trim().min(6, "Ingresa un número de teléfono válido").max(15).regex(/^[0-9]+$/, "Solo números"),
-  ]),
+  telefono: z.string().trim().min(6, "Ingresa un número de WhatsApp válido").max(15).regex(/^[0-9]+$/, "Solo números"),
   acceptTerms: z.literal(true, { errorMap: () => ({ message: "Debes aceptar los términos y condiciones" }) }),
 }).refine((data) => {
   if (data.countryCode === "other" && data.telefono) {
@@ -114,7 +111,7 @@ export const LeadCaptureModal = memo(function LeadCaptureModal({
     }
 
     const finalCountryCode = countryCode === "other" ? customCountryCode : countryCode;
-    const fullPhone = telefono ? `${finalCountryCode}${telefono}` : "";
+    const fullPhone = `${finalCountryCode}${telefono}`;
     onSubmit(result.data.nombre, result.data.email, fullPhone);
   }, [nombre, email, countryCode, customCountryCode, telefono, acceptTerms, onSubmit]);
 
@@ -199,10 +196,10 @@ export const LeadCaptureModal = memo(function LeadCaptureModal({
               )}
             </div>
 
-            {/* Teléfono - Optional */}
+            {/* WhatsApp */}
             <div className="space-y-2">
               <Label htmlFor="telefono" className="text-sm font-medium text-foreground">
-                Teléfono <span className="text-muted-foreground font-normal">(opcional)</span>
+                WhatsApp *
               </Label>
               <div className="flex gap-2">
                 <Select value={countryCode} onValueChange={setCountryCode} disabled={isSubmitting}>

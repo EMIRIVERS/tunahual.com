@@ -101,23 +101,21 @@ const Index = () => {
       // Ignore duplicate email error (code 23505) - user already registered, that's fine
       if (error && error.code !== '23505') throw error;
 
-      // Sync to AZUL ANAITÉ OS (non-blocking). El CRM requiere teléfono,
-      // así que solo sincronizamos cuando el usuario lo proporcionó.
-      if (telefono) {
-        fetch("/api/sync-lead", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            nombre,
-            email,
-            telefono,
-            nahual: result.nahual.nombre,
-            tono: result.tone.numero,
-            kin_completo: kinCompleto,
-            fecha_nacimiento: birthDate,
-          }),
-        }).catch(console.error);
-      }
+      // Sync to AZUL ANAITÉ OS (non-blocking). El teléfono ahora es obligatorio
+      // en el formulario, así que siempre sincronizamos.
+      fetch("/api/sync-lead", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nombre,
+          email,
+          telefono,
+          nahual: result.nahual.nombre,
+          tono: result.tone.numero,
+          kin_completo: kinCompleto,
+          fecha_nacimiento: birthDate,
+        }),
+      }).catch(console.error);
 
       // Send to Zapier webhook if configured (non-blocking)
       supabase

@@ -27,7 +27,9 @@ de **Azul Anaité** (negocio de espiritualidad maya).
 4. **`@vercel/og` NO funciona** como Edge Function en este proyecto Vite ("unsupported modules"). El OG dinámico está pendiente con otra técnica.
 
 ## Dos proyectos Supabase distintos
-- **Frontend** (ref `baqytauorsncevhqsrkp`, "Tu Nahual"): nahuales, tonos, leads.
+- **Frontend** (ref `yzijamjsnaardrnqdycl`, "TuNahual"): nahuales, tonos, leads.
+  El proyecto viejo `baqytauorsncevhqsrkp` ("Tu Nahual") está **pausado** y ya
+  no se usa — no confundirlo con el real.
 - **CRM "Azul Anaité OS"** (ref `ydkbwhwcwoxyuytlntoh`): solo lo usa
   `api/sync-lead.ts` con service key. Requiere teléfono.
 
@@ -40,9 +42,10 @@ Implementadas; se encienden poniendo su clave en Vercel + redeploy. Sin clave = 
 
 ## Flujo actual de la calculadora
 Fecha → calcular → **se muestra la lectura primero** (sin muro) → invitación a
-"Recibir mi lectura por email" (nombre + email; teléfono opcional). El lead se
-guarda en Supabase, se sincroniza al CRM **solo si hay teléfono**, y se envía el
-email si Resend está configurado.
+"Recibir mi lectura por email" (nombre + email + **WhatsApp, los tres
+obligatorios** desde 2026-07-21). El lead se guarda en Supabase, se sincroniza
+siempre al CRM (antes era condicional porque el teléfono era opcional), y se
+envía el email si Resend está configurado.
 
 ## Estilo / esencia (NO romper)
 - Paleta bronce-oro (`#a3732b`) + crema + esencia maya. Titulares en serif

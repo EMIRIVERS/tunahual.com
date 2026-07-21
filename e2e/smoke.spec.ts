@@ -22,7 +22,7 @@ test("home: calcular muestra la lectura primero (sin muro)", async ({ page }) =>
   expect(realErrors(errors)).toEqual([]);
 });
 
-test("flujo: recibir lectura por email (teléfono opcional)", async ({ page }) => {
+test("flujo: recibir lectura por email (nombre, email y WhatsApp obligatorios)", async ({ page }) => {
   await page.goto("/");
   await page.fill('input[type="date"]', "1990-05-15");
   await page.click('button:has-text("Conocer mi Nahual")');
@@ -33,7 +33,8 @@ test("flujo: recibir lectura por email (teléfono opcional)", async ({ page }) =
 
   await page.fill('input[placeholder="Tu nombre"]', "QA Smoke");
   await page.fill('input[type="email"]', "qa.smoke@example.com");
-  await page.click("#terms"); // sin teléfono — debe permitirse
+  await page.fill('#telefono', "12345678");
+  await page.click("#terms");
   await page.click('button:has-text("Enviarme mi lectura"), button:has-text("Revelar mi lectura")');
 
   // Confirmación (enviado o guardado, según haya proveedor de email).
