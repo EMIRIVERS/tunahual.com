@@ -47,6 +47,15 @@ obligatorios** desde 2026-07-21). El lead se guarda en Supabase, se sincroniza
 siempre al CRM (antes era condicional porque el teléfono era opcional), y se
 envía el email si Resend está configurado.
 
+Desde 2026-07-21 la home (`Index.tsx`) también tiene: video de fondo
+(`public/videos/fondo-tu-nahual.mp4`, cae al patrón maya si falla o hay
+`prefers-reduced-motion`) y el widget "Energía de hoy" (`EnergiaDelDia.tsx`,
+Nahual/Tono del día + indicaciones). El resultado (`MayanResultModal.tsx`) se
+rediseñó con cualidades/sombras separadas, spotlight de tono y tarjeta de
+significado; el Cargador (año bearer) está listo pero oculto tras
+`CARGADOR_HABILITADO=false` en `src/utils/cargador.ts` hasta que la clienta
+confirme la fecha ancla del año nuevo solar.
+
 ## Estilo / esencia (NO romper)
 - Paleta bronce-oro (`#a3732b`) + crema + esencia maya. Titulares en serif
   (Cormorant Garamond, `font-serif`).
