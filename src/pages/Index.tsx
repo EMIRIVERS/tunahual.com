@@ -111,8 +111,16 @@ const Index = () => {
       // Ignore duplicate email error (code 23505) - user already registered, that's fine
       if (error && error.code !== '23505') throw error;
 
-      // Sync to AZUL ANAITÉ OS (non-blocking). El teléfono ahora es obligatorio
-      // en el formulario, así que siempre sincronizamos.
+      // Sync to AZUL ANAITÉ OS (no bloqueante para el visitante: el lead ya
+      // quedó guardado en Supabase arriba). Antes se descartaba la respuesta
+      // (fire-and-forget con solo .catch), así que un synced:false del CRM
+      // era invisible. Ahora sí leemos el body: si el CRM falló, lo
+      // reportamos a Sentry (si está activo) para que quede accionable sin
+      // tocar la experiencia del visitante. No se agrega reintento
+      // automático del lado cliente: el servidor ya deja el detalle en sus
+      // logs para reproceso manual, y un fallo de sync suele ser de
+      // configuración/CRM (no transitorio de red del visitante), así que un
+      // retry aquí no aportaría y sí complicaría el flujo.
       fetch("/api/sync-lead", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -125,7 +133,29 @@ const Index = () => {
           kin_completo: kinCompleto,
           fecha_nacimiento: birthDate,
         }),
-      }).catch(console.error);
+      })
+        .then(async (resp) => {
+          const json = await resp.json().catch(() => null);
+          if (json?.synced === false) {
+            console.error("[sync-lead] el CRM no confirmó el lead:", json.crmError);
+            // Reportar a Sentry solo si está activo (mismo patrón que ErrorBoundary).
+            import("@/lib/monitoring")
+              .then(({ isSentryActive }) => {
+                if (isSentryActive()) {
+                  import("@sentry/react").then((Sentry) => {
+                    Sentry.captureMessage("sync-lead: CRM no confirmó el lead", {
+                      level: "error",
+                      extra: { crmError: json.crmError, email, telefono },
+                    });
+                  });
+                }
+              })
+              .catch(() => {
+                /* no romper el flujo del lead si el reporte falla */
+              });
+          }
+        })
+        .catch(console.error);
 
       // Send to Zapier webhook if configured (non-blocking)
       supabase
