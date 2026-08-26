@@ -15,6 +15,11 @@ function fakeLogger() {
   return { error: vi.fn() };
 }
 
+// Valores de entorno de prueba: el ref real vive en AZULANAITEOS_URL (ver
+// ORD-2026-08-26-047), nunca hardcodeado ni aquí ni en sync-lead.ts.
+const fakeCrmUrl = "https://fake-project-ref.supabase.co";
+const fakeTrecenaId = "00000000-0000-0000-0000-000000000000";
+
 describe("syncLeadToCrm", () => {
   it("regresa synced:true cuando el CRM acepta el lead (el lead ya está guardado en Supabase antes de llamar esto)", async () => {
     const fetchImpl = vi.fn().mockResolvedValue(
@@ -22,7 +27,7 @@ describe("syncLeadToCrm", () => {
     );
     const logger = fakeLogger();
 
-    const result = await syncLeadToCrm(leadBase, "fake-service-key", fetchImpl, logger);
+    const result = await syncLeadToCrm(leadBase, "fake-service-key", fetchImpl, logger, fakeCrmUrl, fakeTrecenaId);
 
     expect(result).toEqual({ synced: true });
     expect(logger.error).not.toHaveBeenCalled();
@@ -35,7 +40,7 @@ describe("syncLeadToCrm", () => {
     );
     const logger = fakeLogger();
 
-    const result = await syncLeadToCrm(leadBase, "fake-service-key", fetchImpl, logger);
+    const result = await syncLeadToCrm(leadBase, "fake-service-key", fetchImpl, logger, fakeCrmUrl, fakeTrecenaId);
 
     expect(result.synced).toBe(false);
     expect((result as { crmError: string }).crmError).toContain("service unavailable");
@@ -54,7 +59,7 @@ describe("syncLeadToCrm", () => {
     const fetchImpl = vi.fn().mockRejectedValue(new Error("network down"));
     const logger = fakeLogger();
 
-    const result = await syncLeadToCrm(leadBase, "fake-service-key", fetchImpl, logger);
+    const result = await syncLeadToCrm(leadBase, "fake-service-key", fetchImpl, logger, fakeCrmUrl, fakeTrecenaId);
 
     expect(result.synced).toBe(false);
     expect((result as { crmError: string }).crmError).toBe("network down");
@@ -68,7 +73,7 @@ describe("syncLeadToCrm", () => {
     );
     const logger = fakeLogger();
 
-    const result = await syncLeadToCrm(leadBase, "fake-service-key", fetchImpl, logger);
+    const result = await syncLeadToCrm(leadBase, "fake-service-key", fetchImpl, logger, fakeCrmUrl, fakeTrecenaId);
 
     expect(result).toEqual({ synced: true, duplicate: true });
     expect(logger.error).not.toHaveBeenCalled();

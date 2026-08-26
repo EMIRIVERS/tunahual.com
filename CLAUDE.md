@@ -30,8 +30,13 @@ de **Azul Anaité** (negocio de espiritualidad maya).
 - **Frontend** (ref `yzijamjsnaardrnqdycl`, "TuNahual"): nahuales, tonos, leads.
   El proyecto viejo `baqytauorsncevhqsrkp` ("Tu Nahual") está **pausado** y ya
   no se usa — no confundirlo con el real.
-- **CRM "Azul Anaité OS"** (ref `ydkbwhwcwoxyuytlntoh`): solo lo usa
-  `api/sync-lead.ts` con service key. Requiere teléfono.
+- **CRM "Azul Anaité OS"** (ref `zuimegiggyumwbpimdhv` desde el commit
+  `d91ec3f` de AZULANAITEOS que reconstruyó el esquema en un proyecto Supabase
+  nuevo; el ref anterior quedó muerto — de ahí ORD-2026-08-26-047): solo lo
+  usa `api/sync-lead.ts` con service key. Requiere teléfono. El ref **no va
+  hardcodeado** — sale de `AZULANAITEOS_URL` (ver `.env.example`); verifícalo
+  siempre contra `AZULANAITEOS/supabase/config.toml` antes de asumirlo, ya
+  cambió una vez sin que nadie lo notara.
 
 ## Integraciones activadas por variable de entorno (hoy inactivas)
 Implementadas; se encienden poniendo su clave en Vercel + redeploy. Sin clave = no-op.

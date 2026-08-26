@@ -1,8 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 
-const AZULANAITEOS_URL = "https://ydkbwhwcwoxyuytlntoh.supabase.co";
-const TRECENA_TU_NAHUAL = "2e76b980-8a74-4ff5-b1c6-c2840651d778";
-
 export interface SyncLeadInput {
   nombre: string;
   email?: string | null;
@@ -24,14 +21,32 @@ export type SyncLeadResult =
  * eso, deja constancia con detalle suficiente para reprocesar (logger)
  * y regresa `synced: false` para que el llamador sepa que quedó
  * pendiente de sincronizar.
+ *
+ * `crmUrl` y `trecenaId` vienen de entorno (`AZULANAITEOS_URL` y
+ * `AZULANAITEOS_TRECENA_ID`), nunca hardcodeados: un ref o UUID fijo aquí
+ * fue lo que hizo que el sync apuntara al proyecto Supabase muerto sin que
+ * nadie lo notara (ver ORD-2026-08-26-047).
  */
 export async function syncLeadToCrm(
   lead: SyncLeadInput,
   serviceKey: string,
   fetchImpl: typeof fetch = fetch,
-  logger: Pick<Console, "error"> = console
+  logger: Pick<Console, "error"> = console,
+  crmUrl: string | undefined = process.env.AZULANAITEOS_URL,
+  trecenaId: string | undefined = process.env.AZULANAITEOS_TRECENA_ID
 ): Promise<SyncLeadResult> {
   const { nombre, email, telefono, nahual, tono, kin_completo, fecha_nacimiento } = lead;
+
+  // Identificador reprocesable: no tenemos el id de Supabase aquí (este
+  // endpoint solo sincroniza, no inserta), así que dejamos los datos que
+  // permiten reintentar el alta manual en el CRM.
+  const leadRef = `email=${email || "-"} telefono=${telefono} fecha_nacimiento=${fecha_nacimiento || "-"}`;
+
+  if (!crmUrl || !trecenaId) {
+    const message = "AZULANAITEOS_URL o AZULANAITEOS_TRECENA_ID no configuradas en el entorno";
+    logger.error(`[sync-lead] ${message} — lead=(${leadRef}) queda pendiente de reprocesar`);
+    return { synced: false, crmError: message };
+  }
 
   const notes = [
     nahual ? `Nahual: ${nahual}` : null,
@@ -49,17 +64,12 @@ export async function syncLeadToCrm(
     email: email || null,
     status: "PENDIENTE",
     source: "web_form",
-    trecena_id: TRECENA_TU_NAHUAL,
+    trecena_id: trecenaId,
     notes,
   };
 
-  // Identificador reprocesable: no tenemos el id de Supabase aquí (este
-  // endpoint solo sincroniza, no inserta), así que dejamos los datos que
-  // permiten reintentar el alta manual en el CRM.
-  const leadRef = `email=${email || "-"} telefono=${telefono} fecha_nacimiento=${fecha_nacimiento || "-"}`;
-
   try {
-    const response = await fetchImpl(`${AZULANAITEOS_URL}/rest/v1/leads`, {
+    const response = await fetchImpl(`${crmUrl}/rest/v1/leads`, {
       method: "POST",
       headers: {
         apikey: serviceKey,
@@ -99,8 +109,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   const serviceKey = process.env.AZULANAITEOS_SERVICE_KEY;
-  if (!serviceKey) {
-    return res.status(500).json({ error: "Service key not configured" });
+  if (!serviceKey || !process.env.AZULANAITEOS_URL || !process.env.AZULANAITEOS_TRECENA_ID) {
+    return res.status(500).json({ error: "CRM sync not configured" });
   }
 
   const { nombre, email, telefono, nahual, tono, kin_completo, fecha_nacimiento } = req.body;
