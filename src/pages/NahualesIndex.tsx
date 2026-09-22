@@ -82,7 +82,7 @@ export default function NahualesIndex() {
     "@type": "CollectionPage",
     "name": "Los 20 Nahuales del Calendario Maya Cholq'ij",
     "description": "Guía completa de los 20 signos del calendario sagrado maya. Descubre el significado, cualidades y misión espiritual de cada Nahual.",
-    "url": "https://tunahual.com/nahuales",
+    "url": "https://www.tunahual.com/nahuales",
     "publisher": {
       "@type": "Organization",
       "name": "Azul Anaité",
@@ -98,8 +98,8 @@ export default function NahualesIndex() {
         <meta property="og:title" content="Los 20 Nahuales del Calendario Maya Cholq'ij" />
         <meta property="og:description" content="Guía completa de los 20 signos del calendario sagrado maya Cholq'ij." />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://tunahual.com/nahuales" />
-        <link rel="canonical" href="https://tunahual.com/nahuales" />
+        <meta property="og:url" content="https://www.tunahual.com/nahuales" />
+        <link rel="canonical" href="https://www.tunahual.com/nahuales" />
         <script type="application/ld+json">
           {JSON.stringify(structuredData)}
         </script>

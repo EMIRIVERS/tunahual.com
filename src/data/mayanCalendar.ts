@@ -121,7 +121,7 @@ export const nahuales: Nahual[] = [
     lugarDelPoder: "Cementerios ancestrales",
     elementoConexion: "Portal ancestral",
     cualidades: ["Clarividente", "Ancestral", "Protector", "Sabio", "Transformador"],
-    sombras: ["Miedo a la muerte o al cambio", "Pesimismo", "Quedarse atrapado en el pasado", "Pensamientos morbidos", "Dificultad para avanzar"],
+    sombras: ["Miedo a la muerte o al cambio", "Pesimismo", "Quedarse atrapado en el pasado", "Pensamientos mórbidos", "Dificultad para avanzar"],
     description: "Kame representa la muerte como transformación, no como final. Es el signo de los ancestros, la memoria y la conexión con quienes ya partieron. Las personas Kame tienen un vínculo especial con el mundo espiritual y frecuentemente reciben mensajes de sus antepasados. Poseen el don de la clarividencia y una comprensión profunda de los ciclos de la vida. Son guardianes de la tradición y la sabiduría ancestral."
   },
   {

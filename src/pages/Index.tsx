@@ -42,7 +42,11 @@ const Index = () => {
   const heroReducedMotion =
     typeof window !== "undefined" &&
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const showBgVideo = !bgVideoFailed && !heroReducedMotion;
+  // En móvil (<768px) no se descarga el video de 5.9 MB: cae directo al
+  // patrón maya (.index-bg), que ya hace de fondo/poster.
+  const isMobileViewport =
+    typeof window !== "undefined" && window.matchMedia("(max-width: 767px)").matches;
+  const showBgVideo = !bgVideoFailed && !heroReducedMotion && !isMobileViewport;
 
   const { toast } = useToast();
 
@@ -244,14 +248,14 @@ const Index = () => {
       <Helmet>
         <title>Calculadora Maya Gratis: Descubre tu Nahual y Signo Maya | Cholq'ij</title>
         <meta name="description" content="Calcula tu Nahual Maya por fecha de nacimiento. Descubre tu signo del calendario sagrado Cholq'ij, tu Tono y tu Cruz Maya completa de 9 posiciones." />
-        <link rel="canonical" href="https://tunahual.com/" />
+        <link rel="canonical" href="https://www.tunahual.com/" />
         
         {/* Open Graph / Facebook */}
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://tunahual.com/" />
+        <meta property="og:url" content="https://www.tunahual.com/" />
         <meta property="og:title" content="Calculadora Maya Gratis: Descubre tu Nahual y Signo Maya" />
         <meta property="og:description" content="Calcula tu Nahual Maya por fecha de nacimiento. Descubre tu signo del calendario sagrado Cholq'ij, tu Tono y tu Cruz Maya completa." />
-        <meta property="og:image" content="https://tunahual.com/og-image.png" />
+        <meta property="og:image" content="https://www.tunahual.com/og-image.png" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta property="og:locale" content="es_ES" />
@@ -259,10 +263,10 @@ const Index = () => {
         
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:url" content="https://tunahual.com/" />
+        <meta name="twitter:url" content="https://www.tunahual.com/" />
         <meta name="twitter:title" content="Calculadora Maya Gratis: Descubre tu Nahual y Signo Maya" />
         <meta name="twitter:description" content="Calcula tu Nahual Maya por fecha de nacimiento. Descubre tu signo del calendario sagrado Cholq'ij." />
-        <meta name="twitter:image" content="https://tunahual.com/og-image.png" />
+        <meta name="twitter:image" content="https://www.tunahual.com/og-image.png" />
         
         {/* Additional SEO */}
         <meta name="keywords" content="nahual maya, calculadora maya, signo maya, cholqij, calendario maya, horóscopo maya, cruz maya, tono maya" />
@@ -388,6 +392,9 @@ const Index = () => {
                     <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
                     <input
                       type="date"
+                      id="birth-date"
+                      name="birth-date"
+                      aria-label="Fecha de nacimiento"
                       value={birthDate}
                       onChange={(e) => setBirthDate(e.target.value)}
                       className="w-full pl-10 pr-3 py-3 rounded-full border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all text-sm"

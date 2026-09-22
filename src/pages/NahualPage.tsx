@@ -101,19 +101,19 @@ export default function NahualPage() {
         "@type": "ListItem",
         "position": 1,
         "name": "Inicio",
-        "item": "https://tunahual.com/"
+        "item": "https://www.tunahual.com/"
       },
       {
         "@type": "ListItem",
         "position": 2,
         "name": "Nahuales",
-        "item": "https://tunahual.com/nahuales"
+        "item": "https://www.tunahual.com/nahuales"
       },
       {
         "@type": "ListItem",
         "position": 3,
         "name": nahual.nombre,
-        "item": `https://tunahual.com/nahual/${slug}`
+        "item": `https://www.tunahual.com/nahual/${slug}`
       }
     ]
   };
@@ -127,10 +127,10 @@ export default function NahualPage() {
         <meta property="og:description" content={nahual.descripcion.slice(0, 200)} />
         <meta property="og:type" content="article" />
         <meta name="twitter:card" content="summary_large_image" />
-        <link rel="canonical" href={`https://tunahual.com/nahual/${slug}`} />
-        <link rel="alternate" hreflang="es-MX" href={`https://tunahual.com/nahual/${slug}`} />
-        <link rel="alternate" hreflang="es" href={`https://tunahual.com/nahual/${slug}`} />
-        <link rel="alternate" hreflang="x-default" href={`https://tunahual.com/nahual/${slug}`} />
+        <link rel="canonical" href={`https://www.tunahual.com/nahual/${slug}`} />
+        <link rel="alternate" hreflang="es-MX" href={`https://www.tunahual.com/nahual/${slug}`} />
+        <link rel="alternate" hreflang="es" href={`https://www.tunahual.com/nahual/${slug}`} />
+        <link rel="alternate" hreflang="x-default" href={`https://www.tunahual.com/nahual/${slug}`} />
         <script type="application/ld+json">
           {JSON.stringify(structuredData)}
         </script>

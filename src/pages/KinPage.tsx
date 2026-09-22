@@ -137,7 +137,7 @@ export default function KinPage() {
   }, [parsed]);
 
   const handleShare = () => {
-    const url = `https://tunahual.com/kin/${kinSlug}`;
+    const url = `https://www.tunahual.com/kin/${kinSlug}`;
     const text = `🌟 Kin ${parsed?.kinNumber}: ${tono?.numero} ${nahual?.nombre}\n✨ Descubre tu Kin Maya:`;
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(`${text}\n${url}`)}`;
     window.open(whatsappUrl, '_blank');
@@ -177,16 +177,16 @@ export default function KinPage() {
     "description": pageDesc,
     "author": { "@type": "Organization", "name": "Azul Anaité" },
     "publisher": { "@type": "Organization", "name": "Tu Nahual" },
-    "mainEntityOfPage": `https://tunahual.com/kin/${kinSlug}`
+    "mainEntityOfPage": `https://www.tunahual.com/kin/${kinSlug}`
   };
 
   const breadcrumbData = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     "itemListElement": [
-      { "@type": "ListItem", "position": 1, "name": "Inicio", "item": "https://tunahual.com/" },
-      { "@type": "ListItem", "position": 2, "name": "Los 260 Kin", "item": "https://tunahual.com/kin" },
-      { "@type": "ListItem", "position": 3, "name": `Kin ${parsed.kinNumber}`, "item": `https://tunahual.com/kin/${kinSlug}` }
+      { "@type": "ListItem", "position": 1, "name": "Inicio", "item": "https://www.tunahual.com/" },
+      { "@type": "ListItem", "position": 2, "name": "Los 260 Kin", "item": "https://www.tunahual.com/kin" },
+      { "@type": "ListItem", "position": 3, "name": `Kin ${parsed.kinNumber}`, "item": `https://www.tunahual.com/kin/${kinSlug}` }
     ]
   };
 
@@ -219,19 +219,19 @@ export default function KinPage() {
         <title>{pageTitle}</title>
         <meta name="description" content={pageDesc} />
         <meta name="keywords" content={`kin ${parsed.kinNumber}, ${tono.numero} ${nahual.nombre}, nahual ${nahual.nombre}, tono ${tono.numero}, calendario maya, cholqij`} />
-        <link rel="canonical" href={`https://tunahual.com/kin/${kinSlug}`} />
-        <link rel="alternate" hreflang="es-MX" href={`https://tunahual.com/kin/${kinSlug}`} />
-        <link rel="alternate" hreflang="es" href={`https://tunahual.com/kin/${kinSlug}`} />
-        <link rel="alternate" hreflang="x-default" href={`https://tunahual.com/kin/${kinSlug}`} />
+        <link rel="canonical" href={`https://www.tunahual.com/kin/${kinSlug}`} />
+        <link rel="alternate" hreflang="es-MX" href={`https://www.tunahual.com/kin/${kinSlug}`} />
+        <link rel="alternate" hreflang="es" href={`https://www.tunahual.com/kin/${kinSlug}`} />
+        <link rel="alternate" hreflang="x-default" href={`https://www.tunahual.com/kin/${kinSlug}`} />
         <meta property="og:title" content={pageTitle} />
         <meta property="og:description" content={pageDesc} />
-        <meta property="og:url" content={`https://tunahual.com/kin/${kinSlug}`} />
+        <meta property="og:url" content={`https://www.tunahual.com/kin/${kinSlug}`} />
         <meta property="og:type" content="article" />
-        <meta property="og:image" content="https://tunahual.com/og-image.png" />
+        <meta property="og:image" content="https://www.tunahual.com/og-image.png" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:image" content="https://tunahual.com/og-image.png" />
+        <meta name="twitter:image" content="https://www.tunahual.com/og-image.png" />
         <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
         <script type="application/ld+json">{JSON.stringify(breadcrumbData)}</script>
         <script type="application/ld+json">{JSON.stringify(faqData)}</script>

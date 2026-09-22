@@ -44,14 +44,14 @@ export default function KinIndex() {
     "@type": "CollectionPage",
     "name": "Los 260 Kin del Calendario Maya Cholq'ij",
     "description": "Explora los 260 Kin del calendario sagrado Maya. Cada Kin es una combinación única de uno de los 20 Nahuales con uno de los 13 Tonos.",
-    "url": "https://tunahual.com/kin",
+    "url": "https://www.tunahual.com/kin",
     "mainEntity": {
       "@type": "ItemList",
       "numberOfItems": 260,
       "itemListElement": allKins.slice(0, 20).map((kin, i) => ({
         "@type": "ListItem",
         "position": i + 1,
-        "url": `https://tunahual.com/kin/${kin.slug}`,
+        "url": `https://www.tunahual.com/kin/${kin.slug}`,
         "name": `Kin ${kin.kinNumber}: ${kin.tono} ${kin.nahual}`
       }))
     }
@@ -61,8 +61,8 @@ export default function KinIndex() {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     "itemListElement": [
-      { "@type": "ListItem", "position": 1, "name": "Inicio", "item": "https://tunahual.com/" },
-      { "@type": "ListItem", "position": 2, "name": "Los 260 Kin", "item": "https://tunahual.com/kin" }
+      { "@type": "ListItem", "position": 1, "name": "Inicio", "item": "https://www.tunahual.com/" },
+      { "@type": "ListItem", "position": 2, "name": "Los 260 Kin", "item": "https://www.tunahual.com/kin" }
     ]
   };
 
@@ -72,10 +72,10 @@ export default function KinIndex() {
         <title>Los 260 Kin del Calendario Maya Cholq'ij | Tu Nahual</title>
         <meta name="description" content="Explora los 260 Kin del calendario sagrado Maya Cholq'ij. Cada Kin combina uno de los 20 Nahuales con uno de los 13 Tonos. Encuentra tu energía cósmica." />
         <meta name="keywords" content="260 kin, calendario maya, cholqij, nahuales, tonos, kin maya, calendario sagrado, tzolkin" />
-        <link rel="canonical" href="https://tunahual.com/kin" />
+        <link rel="canonical" href="https://www.tunahual.com/kin" />
         <meta property="og:title" content="Los 260 Kin del Calendario Maya" />
         <meta property="og:description" content="Descubre los 260 Kin del calendario sagrado Maya Cholq'ij. Cada Kin es una energía única." />
-        <meta property="og:url" content="https://tunahual.com/kin" />
+        <meta property="og:url" content="https://www.tunahual.com/kin" />
         <meta property="og:type" content="website" />
         <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
         <script type="application/ld+json">{JSON.stringify(breadcrumbData)}</script>

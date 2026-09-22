@@ -182,13 +182,13 @@ export default function ResultadoPage() {
         "@type": "ListItem",
         "position": 1,
         "name": "Inicio",
-        "item": "https://tunahual.com/"
+        "item": "https://www.tunahual.com/"
       },
       {
         "@type": "ListItem",
         "position": 2,
         "name": `Nahual ${tono.numero} ${nahual.nombre}`,
-        "item": `https://tunahual.com/resultado/${kinSlug}`
+        "item": `https://www.tunahual.com/resultado/${kinSlug}`
       }
     ]
   };
@@ -203,7 +203,7 @@ export default function ResultadoPage() {
     .filter(Boolean)
     .join('&');
   
-  const ogImageUrl = `https://tunahual.com/og-image.png`;
+  const ogImageUrl = `https://www.tunahual.com/og-image.png`;
 
   return (
     <>
@@ -218,10 +218,10 @@ export default function ResultadoPage() {
         <meta property="og:image:height" content="630" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:image" content={ogImageUrl} />
-        <link rel="canonical" href={`https://tunahual.com/resultado/${kinSlug}`} />
-        <link rel="alternate" hreflang="es-MX" href={`https://tunahual.com/resultado/${kinSlug}`} />
-        <link rel="alternate" hreflang="es" href={`https://tunahual.com/resultado/${kinSlug}`} />
-        <link rel="alternate" hreflang="x-default" href={`https://tunahual.com/resultado/${kinSlug}`} />
+        <link rel="canonical" href={`https://www.tunahual.com/resultado/${kinSlug}`} />
+        <link rel="alternate" hreflang="es-MX" href={`https://www.tunahual.com/resultado/${kinSlug}`} />
+        <link rel="alternate" hreflang="es" href={`https://www.tunahual.com/resultado/${kinSlug}`} />
+        <link rel="alternate" hreflang="x-default" href={`https://www.tunahual.com/resultado/${kinSlug}`} />
         <script type="application/ld+json">
           {JSON.stringify(structuredData)}
         </script>
