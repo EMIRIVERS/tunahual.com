@@ -30,7 +30,7 @@ export function CapaBloqueada({ abierta, children, titulo, texto, boton, onAbrir
       >
         {children}
       </div>
-      <div className="absolute inset-0 flex items-center justify-center p-4 bg-background/40">
+      <div className="absolute inset-0 flex items-start justify-center px-4 pt-6 bg-background/40">
         <div className="max-w-xs text-center space-y-3 rounded-2xl bg-card/95 border border-border/60 p-5 shadow-lg">
           <Lock className="w-5 h-5 mx-auto text-primary/70" aria-hidden="true" />
           <p className="font-serif text-xl text-foreground">{titulo}</p>
