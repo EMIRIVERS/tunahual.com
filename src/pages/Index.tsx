@@ -14,6 +14,9 @@ import logo from "@/assets/logo-azul-anaite.png";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { trackEvent } from "@/lib/analytics";
+import { nahualToSlug } from "@/data/nahualSlugs";
+
+const LEAD_FLAG_KEY = "tunahual_cruz_abierta";
 
 // Video de fondo de toda la pantalla — public/videos/fondo-tu-nahual.mp4.
 // Si no existe (404) o el usuario prefiere movimiento reducido, cae al patrón maya (.index-bg).
@@ -36,7 +39,23 @@ const Index = () => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isCalculating, setIsCalculating] = useState(false);
   const [isSubmittingLead, setIsSubmittingLead] = useState(false);
-  const [leadSubmitted, setLeadSubmitted] = useState(false);
+  // Quien ya dejó sus datos tiene la Cruz abierta también en otras fechas y
+  // en visitas futuras (se recuerda solo en este navegador).
+  const [leadSubmitted, setLeadSubmittedState] = useState(() => {
+    try {
+      return localStorage.getItem(LEAD_FLAG_KEY) === "1";
+    } catch {
+      return false;
+    }
+  });
+  const setLeadSubmitted = useCallback((v: boolean) => {
+    setLeadSubmittedState(v);
+    try {
+      if (v) localStorage.setItem(LEAD_FLAG_KEY, "1");
+    } catch {
+      /* navegación privada: no pasa nada, solo no se recuerda */
+    }
+  }, []);
   const [emailSent, setEmailSent] = useState(false);
   const [bgVideoFailed, setBgVideoFailed] = useState(false);
   const heroReducedMotion =
@@ -160,6 +179,21 @@ const Index = () => {
           }
         })
         .catch(console.error);
+
+      // Contacto a Kajabi con etiquetas "tunahual" y "nahual-<slug>" (no bloqueante;
+      // sin KAJABI_WEBHOOK_URL el endpoint responde ok:false y no pasa nada).
+      fetch("/api/kajabi", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nombre,
+          email,
+          telefono,
+          nahualSlug: nahualToSlug[result.nahual.nombre],
+          tono: result.tone.numero,
+          fecha_nacimiento: birthDate,
+        }),
+      }).catch(console.error);
 
       // Send to Zapier webhook if configured (non-blocking)
       supabase
@@ -426,7 +460,6 @@ const Index = () => {
                         setCross(null);
                         setSelectedDate(null);
                         setBirthDate("");
-                        setLeadSubmitted(false);
                         setEmailSent(false);
                       }}
                     >

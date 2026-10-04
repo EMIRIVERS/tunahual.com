@@ -19,6 +19,13 @@ import { TonoSpotlightCard } from "./result/TonoSpotlightCard";
 import { NahualAttributesGrid } from "./result/NahualAttributesGrid";
 import { ConocimientoProfundoTab } from "./result/ConocimientoProfundoTab";
 import { ShareButtons } from "./result/ShareButtons";
+import { CapaBloqueada } from "./result/CapaBloqueada";
+import { CieloNacimientoCard } from "./result/CieloNacimientoCard";
+import { trackEvent } from "@/lib/analytics";
+
+// Liga de pago del Mapa de Energía (Kajabi o Stripe). Sin ella, el cierre
+// sigue invitando a azulanaite.com. Se define en Vercel y se hornea en el build.
+const OFERTA_PDF_URL = (import.meta.env.VITE_OFERTA_PDF_URL as string | undefined)?.trim() || "";
 
 interface MayanResultModalProps {
   isOpen: boolean;
@@ -159,8 +166,21 @@ export function MayanResultModal({
                   <SombrasList result={result} />
                   <AnimalGuiaCard result={result} />
                   {trecenaNahual && <TrecenaCard trecenaNahual={trecenaNahual} />}
-                  {CARGADOR_HABILITADO && birthDate && (
-                    <CargadorCard birthDate={birthDate} nahuales={nahuales} tonos={tonos} />
+                  {birthDate && (
+                    <CapaBloqueada
+                      abierta={!!leadSubmitted}
+                      titulo="El cielo de tu nacimiento"
+                      texto="Tu luna, tu Cuenta Larga y tu cargador del año te esperan. Déjame tu correo y te los envío."
+                      boton="Abrir mi cielo"
+                      onAbrir={onSaveByEmail}
+                    >
+                      <div className="space-y-6">
+                        <CieloNacimientoCard birthDate={birthDate} />
+                        {CARGADOR_HABILITADO && (
+                          <CargadorCard birthDate={birthDate} nahuales={nahuales} tonos={tonos} />
+                        )}
+                      </div>
+                    </CapaBloqueada>
                   )}
                   <NahualAttributesGrid result={result} />
                   <motion.div
@@ -185,7 +205,17 @@ export function MayanResultModal({
 
                 {/* Tab: Cruz Maya */}
                 <TabsContent value="cruz" className="mt-0">
-                  {cross && <MayanCrossDisplay cross={cross} />}
+                  {cross && (
+                    <CapaBloqueada
+                      abierta={!!leadSubmitted}
+                      titulo="Tus nueve energías te esperan"
+                      texto="Déjame tu correo y te las envío: tu origen, tu destino y las energías que te acompañan."
+                      boton="Abrir mi Cruz Maya"
+                      onAbrir={onSaveByEmail}
+                    >
+                      <MayanCrossDisplay cross={cross} />
+                    </CapaBloqueada>
+                  )}
                 </TabsContent>
 
                 {/* Tab: Conocimiento Profundo */}
@@ -238,19 +268,26 @@ export function MayanResultModal({
                 >
                   <Star className="w-5 h-5 text-primary/70" />
                   <p className="font-serif text-xl text-foreground">
-                    Tu camino apenas comienza
+                    {OFERTA_PDF_URL ? "Tu Mapa de Energía" : "Tu camino apenas comienza"}
                   </p>
                   <p className="text-sm text-muted-foreground leading-relaxed max-w-sm">
-                    La tradición maya k'iche' es vasta. En Azul Anaité acompañamos
-                    a quienes desean caminarla con profundidad.
+                    {OFERTA_PDF_URL
+                      ? `Tu nahual, tu tono, tu cruz y tu huella energética en un PDF personal de ${result.tone.numero} ${result.nahual.nombre}, que llega a tu correo.`
+                      : "La tradición maya k'iche' es vasta. En Azul Anaité acompañamos a quienes desean caminarla con profundidad."}
                   </p>
                   <a
-                    href="https://azulanaite.com"
+                    href={OFERTA_PDF_URL || "https://azulanaite.com"}
                     target="_blank"
                     rel="noopener noreferrer"
+                    onClick={() =>
+                      trackEvent(OFERTA_PDF_URL ? "oferta_pdf_click" : "azulanaite_click", {
+                        nahual: result.nahual.nombre,
+                        tono: result.tone.numero,
+                      })
+                    }
                     className="inline-flex items-center gap-1.5 text-sm font-medium text-primary border-b border-primary/40 pb-0.5 hover:border-primary transition-colors mt-1"
                   >
-                    Conoce Azul Anaité
+                    {OFERTA_PDF_URL ? "Quiero mi Mapa de Energía" : "Conoce Azul Anaité"}
                     <span aria-hidden>→</span>
                   </a>
                 </motion.div>

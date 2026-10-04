@@ -3,6 +3,7 @@ import { NahualDB, TonoDB } from "@/hooks/useMayanData";
 import { calculateMayanKinFromDB } from "@/utils/mayanCalculations";
 import { getPotenciaGuia } from "@/data/energiaDelDia";
 import { NahualImage } from "@/components/NahualImage";
+import { calcularLuna } from "@/utils/luna";
 
 interface EnergiaDelDiaProps {
   nahuales: NahualDB[];
@@ -25,6 +26,7 @@ export function EnergiaDelDia({ nahuales, tonos, fecha }: EnergiaDelDiaProps) {
   }, [hoy, nahuales, tonos]);
 
   const guia = kin ? getPotenciaGuia(kin.tone.numero) : null;
+  const luna = useMemo(() => calcularLuna(hoy), [hoy]);
 
   const fechaLegible = useMemo(
     () =>
@@ -68,6 +70,9 @@ export function EnergiaDelDia({ nahuales, tonos, fecha }: EnergiaDelDiaProps) {
           </p>
           <p className="text-sm text-muted-foreground mt-0.5">
             {kin.nahual.significado} · {guia.esencia}
+          </p>
+          <p className="text-xs text-muted-foreground/80 mt-1">
+            {luna.nombre} · {luna.iluminacion}%
           </p>
         </div>
       </div>

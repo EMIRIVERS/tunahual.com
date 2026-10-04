@@ -54,11 +54,11 @@ export const CargadorCard = memo(function CargadorCard({
       </div>
       <div className="min-w-0">
         <p className="eyebrow text-muted-foreground">Cargador del Año</p>
-        <p className="text-lg font-semibold text-foreground mt-0.5">{cargador.nahual.nombre}</p>
+        <p className="text-lg font-semibold text-foreground mt-0.5">{cargador.tono} {cargador.nahual.nombre}</p>
         {cargador.esencia && (
           <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{cargador.esencia}</p>
         )}
-        <p className="text-[0.7rem] text-muted-foreground/70 mt-1">Año solar: {rango}</p>
+        <p className="text-[0.7rem] text-muted-foreground/70 mt-1">Año maya {cargador.anio} · {rango}</p>
       </div>
     </motion.div>
   );

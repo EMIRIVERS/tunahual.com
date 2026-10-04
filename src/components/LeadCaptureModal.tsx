@@ -135,15 +135,15 @@ export const LeadCaptureModal = memo(function LeadCaptureModal({
               Tu lectura del Cholq'ij
             </p>
             <DialogTitle className="font-serif text-3xl font-semibold text-foreground">
-              Recibe tu lectura
+              Abre tu Cruz Maya
             </DialogTitle>
 
             {/* Nahual Preview */}
             {nahualPreview && <NahualPreview result={nahualPreview} />}
 
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Te enviamos tu lectura completa por correo para que vuelvas a tu
-              mapa maya cuando lo necesites.
+              Tus nueve energías, tu cielo de nacimiento y tu lectura completa:
+              se abren aquí al instante y también te llegan por correo.
             </p>
           </DialogHeader>
 
@@ -304,7 +304,7 @@ export const LeadCaptureModal = memo(function LeadCaptureModal({
               >
                 <span className="flex items-center justify-center gap-2">
                   {isSubmitting && <Loader2 className="w-5 h-5 animate-spin" />}
-                  {isSubmitting ? "Consultando el calendario sagrado..." : "Revelar mi lectura"}
+                  {isSubmitting ? "Consultando el calendario sagrado..." : "Abrir mi Cruz Maya"}
                 </span>
               </Button>
             </div>
