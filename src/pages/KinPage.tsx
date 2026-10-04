@@ -1,3 +1,4 @@
+import { CapturaLectura } from '@/components/CapturaLectura';
 import { atributosCanon } from '@/data/maices';
 import { useParams, Link } from 'react-router-dom';
 import { useState, useEffect, useMemo } from 'react';
@@ -444,6 +445,10 @@ export default function KinPage() {
               </Link>
             </p>
           </section>
+
+          <div className="mt-10">
+            <CapturaLectura nahual={nahual} tono={tono.numero} origen="kin" />
+          </div>
         </main>
 
         <footer className="border-t py-8 text-center text-sm text-muted-foreground">

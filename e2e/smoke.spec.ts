@@ -106,6 +106,40 @@ test("app instalable: manifest e íconos responden", async ({ request }) => {
   expect((await request.get("/offline.html")).ok()).toBe(true);
 });
 
+for (const [ruta, origen] of [["/kin/7-aqabal", "kin"], ["/nahual/aqabal", "nahual"], ["/resultado/7-aqabal", "resultado"]] as const) {
+  test(`captura siempre presente en ${ruta}: pide fecha y guarda el lead`, async ({ page }) => {
+    let lead: Record<string, unknown> | null = null;
+    await page.route("**/rest/v1/leads*", async (r) => {
+      lead = r.request().postDataJSON();
+      await r.fulfill({ status: 201, body: "" });
+    });
+    await page.route("**/api/**", (r) => r.fulfill({ status: 200, contentType: "application/json", body: '{"ok":false}' }));
+
+    await page.goto(ruta, { waitUntil: "networkidle" });
+    await page.getByRole("button", { name: /Recibir mi lectura/i }).click();
+    await page.fill('input[placeholder="Tu nombre"]', "QA Captura");
+    await page.fill('input[type="email"]', `qa.${origen}@example.com`);
+    await page.fill("#fecha-nacimiento", "1990-03-15");
+    await page.fill("#telefono", "12345678");
+    await page.click("#terms");
+    await page.click('button:has-text("Abrir mi Cruz Maya")');
+
+    await expect(page.getByText(/Te enviamos tu lectura|quedó guardada/i).first()).toBeVisible({ timeout: 10000 });
+    expect(lead).toMatchObject({ email: `qa.${origen}@example.com`, fecha_nacimiento: "1990-03-15", nahual: "Aq'ab'al" });
+  });
+}
+
+test("captura: sin fecha de nacimiento no envía", async ({ page }) => {
+  await page.goto("/kin/7-aqabal", { waitUntil: "networkidle" });
+  await page.getByRole("button", { name: /Recibir mi lectura/i }).click();
+  await page.fill('input[placeholder="Tu nombre"]', "QA");
+  await page.fill('input[type="email"]', "qa.sin.fecha@example.com");
+  await page.fill("#telefono", "12345678");
+  await page.click("#terms");
+  await page.click('button:has-text("Abrir mi Cruz Maya")');
+  await expect(page.getByText("Ingresa tu fecha de nacimiento")).toBeVisible();
+});
+
 const routes = ["/nahuales", "/nahual/imox", "/kin", "/kin/1-imox", "/resultado/6-kat"];
 for (const route of routes) {
   test(`ruta carga sin crash: ${route}`, async ({ page }) => {

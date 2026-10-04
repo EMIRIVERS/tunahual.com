@@ -1,3 +1,4 @@
+import { CapturaLectura } from '@/components/CapturaLectura';
 import { atributosCanon } from '@/data/maices';
 import { useParams, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
@@ -438,6 +439,10 @@ export default function ResultadoPage() {
               </Button>
             </div>
           </section>
+
+          <div className="mt-10">
+            <CapturaLectura nahual={nahual} tono={tono.numero} origen="resultado" />
+          </div>
         </main>
 
         {/* Footer */}

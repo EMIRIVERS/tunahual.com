@@ -11,12 +11,8 @@ import {
 import { Calendar, ArrowLeft, Loader2, Globe } from "lucide-react";
 import { EnergiaDelDia } from "@/components/EnergiaDelDia";
 import logo from "@/assets/logo-azul-anaite.png";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { useLeadCapture } from "@/hooks/useLeadCapture";
 import { trackEvent } from "@/lib/analytics";
-import { nahualToSlug } from "@/data/nahualSlugs";
-
-const LEAD_FLAG_KEY = "tunahual_cruz_abierta";
 
 // Video de fondo de toda la pantalla — public/videos/fondo-tu-nahual.mp4.
 // Si no existe (404) o el usuario prefiere movimiento reducido, cae al patrón maya (.index-bg).
@@ -38,25 +34,7 @@ const Index = () => {
   const [isLeadModalOpen, setIsLeadModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isCalculating, setIsCalculating] = useState(false);
-  const [isSubmittingLead, setIsSubmittingLead] = useState(false);
-  // Quien ya dejó sus datos tiene la Cruz abierta también en otras fechas y
-  // en visitas futuras (se recuerda solo en este navegador).
-  const [leadSubmitted, setLeadSubmittedState] = useState(() => {
-    try {
-      return localStorage.getItem(LEAD_FLAG_KEY) === "1";
-    } catch {
-      return false;
-    }
-  });
-  const setLeadSubmitted = useCallback((v: boolean) => {
-    setLeadSubmittedState(v);
-    try {
-      if (v) localStorage.setItem(LEAD_FLAG_KEY, "1");
-    } catch {
-      /* navegación privada: no pasa nada, solo no se recuerda */
-    }
-  }, []);
-  const [emailSent, setEmailSent] = useState(false);
+  const { submit: enviarLead, isSubmitting: isSubmittingLead, leadSubmitted, emailSent } = useLeadCapture();
   const [bgVideoFailed, setBgVideoFailed] = useState(false);
   const heroReducedMotion =
     typeof window !== "undefined" &&
@@ -66,8 +44,6 @@ const Index = () => {
   const isMobileViewport =
     typeof window !== "undefined" && window.matchMedia("(max-width: 767px)").matches;
   const showBgVideo = !bgVideoFailed && !heroReducedMotion && !isMobileViewport;
-
-  const { toast } = useToast();
 
   const { nahuales, tonos, loading: loadingData } = useMayanData();
 
@@ -108,168 +84,22 @@ const Index = () => {
     }
   }, [birthDate, nahuales, tonos]);
 
-  const handleLeadSubmit = useCallback(async (
-    nombre: string,
-    email: string,
-    telefono: string
-  ) => {
-    if (!result || !selectedDate) return;
-
-    setIsSubmittingLead(true);
-
-    try {
-      const kinCompleto = `${result.tone.numero} ${result.nahual.nombre}`;
-
-      // Try insert first; if email already exists (duplicate), just continue
-      const { error } = await supabase.from("leads").insert({
+  const handleLeadSubmit = useCallback(
+    async (nombre: string, email: string, telefono: string) => {
+      if (!result || !selectedDate) return;
+      const ok = await enviarLead({
         nombre,
         email,
         telefono,
-        fecha_nacimiento: birthDate,
-        nahual: result.nahual.nombre,
+        fechaNacimiento: birthDate,
+        nahual: result.nahual,
         tono: result.tone.numero,
-        kin_completo: kinCompleto,
+        origen: "home",
       });
-
-      // Ignore duplicate email error (code 23505) - user already registered, that's fine
-      if (error && error.code !== '23505') throw error;
-
-      // Sync to AZUL ANAITÉ OS (no bloqueante para el visitante: el lead ya
-      // quedó guardado en Supabase arriba). Antes se descartaba la respuesta
-      // (fire-and-forget con solo .catch), así que un synced:false del CRM
-      // era invisible. Ahora sí leemos el body: si el CRM falló, lo
-      // reportamos a Sentry (si está activo) para que quede accionable sin
-      // tocar la experiencia del visitante. No se agrega reintento
-      // automático del lado cliente: el servidor ya deja el detalle en sus
-      // logs para reproceso manual, y un fallo de sync suele ser de
-      // configuración/CRM (no transitorio de red del visitante), así que un
-      // retry aquí no aportaría y sí complicaría el flujo.
-      fetch("/api/sync-lead", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          nombre,
-          email,
-          telefono,
-          nahual: result.nahual.nombre,
-          tono: result.tone.numero,
-          kin_completo: kinCompleto,
-          fecha_nacimiento: birthDate,
-        }),
-      })
-        .then(async (resp) => {
-          const json = await resp.json().catch(() => null);
-          if (json?.synced === false) {
-            console.error("[sync-lead] el CRM no confirmó el lead:", json.crmError);
-            // Reportar a Sentry solo si está activo (mismo patrón que ErrorBoundary).
-            import("@/lib/monitoring")
-              .then(({ isSentryActive }) => {
-                if (isSentryActive()) {
-                  import("@sentry/react").then((Sentry) => {
-                    Sentry.captureMessage("sync-lead: CRM no confirmó el lead", {
-                      level: "error",
-                      extra: { crmError: json.crmError, email, telefono },
-                    });
-                  });
-                }
-              })
-              .catch(() => {
-                /* no romper el flujo del lead si el reporte falla */
-              });
-          }
-        })
-        .catch(console.error);
-
-      // Contacto a Kajabi con etiquetas "tunahual" y "nahual-<slug>" (no bloqueante;
-      // sin KAJABI_WEBHOOK_URL el endpoint responde ok:false y no pasa nada).
-      fetch("/api/kajabi", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          nombre,
-          email,
-          telefono,
-          nahualSlug: nahualToSlug[result.nahual.nombre],
-          tono: result.tone.numero,
-          fecha_nacimiento: birthDate,
-        }),
-      }).catch(console.error);
-
-      // Send to Zapier webhook if configured (non-blocking)
-      supabase
-        .from("configuracion")
-        .select("valor")
-        .eq("clave", "zapier_webhook_url")
-        .maybeSingle()
-        .then(({ data: config }) => {
-          if (config?.valor) {
-            fetch(config.valor, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              mode: "no-cors",
-              body: JSON.stringify({
-                nombre,
-                email,
-                telefono,
-                fecha_nacimiento: birthDate,
-                nahual: result.nahual.nombre,
-                tono: result.tone.numero,
-                kin_completo: kinCompleto,
-                timestamp: new Date().toISOString(),
-              }),
-            }).catch(console.error);
-          }
-        });
-
-      // Enviar la lectura por email. Esperamos la respuesta para NO afirmar
-      // que se envió si el proveedor aún no está configurado (degrada con gracia).
-      let sent = false;
-      try {
-        const resp = await fetch("/api/send-reading", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            nombre,
-            email,
-            nahual: result.nahual.nombre,
-            tono: result.tone.numero,
-            significado: result.nahual.significado,
-            descripcion: result.nahual.descripcion,
-            kin_completo: kinCompleto,
-          }),
-        });
-        const json = await resp.json().catch(() => ({}));
-        sent = json?.ok === true;
-      } catch (e) {
-        console.error("send-reading error:", e);
-      }
-
-      setEmailSent(sent);
-      setIsLeadModalOpen(false);
-      setLeadSubmitted(true);
-
-      // Track lead submission event
-      trackEvent('lead_enviado', {
-        nahual: result.nahual.nombre,
-        tono: result.tone.numero,
-      });
-
-      toast(
-        sent
-          ? { title: "¡Listo!", description: "Te enviamos tu lectura a tu correo." }
-          : { title: "¡Guardado!", description: "Tu lectura quedó guardada." }
-      );
-    } catch (error) {
-      console.error("Error saving lead:", error);
-      toast({
-        title: "Error",
-        description: "No se pudieron guardar tus datos. Intenta de nuevo.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmittingLead(false);
-    }
-  }, [result, selectedDate, birthDate, toast, setLeadSubmitted]);
+      if (ok) setIsLeadModalOpen(false);
+    },
+    [result, selectedDate, birthDate, enviarLead]
+  );
 
   const handleCloseLeadModal = useCallback(() => setIsLeadModalOpen(false), []);
   const handleCloseResultModal = useCallback(() => setIsResultModalOpen(false), []);
@@ -460,7 +290,6 @@ const Index = () => {
                         setCross(null);
                         setSelectedDate(null);
                         setBirthDate("");
-                        setEmailSent(false);
                       }}
                     >
                       ← Calcular otra fecha

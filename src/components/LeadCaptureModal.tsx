@@ -65,7 +65,10 @@ const leadSchema = z.object({
 interface LeadCaptureModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (nombre: string, email: string, telefono: string) => void;
+  /** `fecha` (YYYY-MM-DD) solo llega cuando `pedirFecha` es true. */
+  onSubmit: (nombre: string, email: string, telefono: string, fecha?: string) => void;
+  /** En páginas donde aún no se conoce la fecha de nacimiento. */
+  pedirFecha?: boolean;
   isSubmitting: boolean;
   nahualPreview?: MayanKinDB;
 }
@@ -75,7 +78,8 @@ export const LeadCaptureModal = memo(function LeadCaptureModal({
   onClose, 
   onSubmit, 
   isSubmitting,
-  nahualPreview
+  nahualPreview,
+  pedirFecha = false
 }: LeadCaptureModalProps) {
   const [nombre, setNombre] = useState("");
   const [email, setEmail] = useState("");
@@ -83,7 +87,8 @@ export const LeadCaptureModal = memo(function LeadCaptureModal({
   const [customCountryCode, setCustomCountryCode] = useState("");
   const [telefono, setTelefono] = useState("");
   const [acceptTerms, setAcceptTerms] = useState(false);
-  const [errors, setErrors] = useState<{ nombre?: string; email?: string; countryCode?: string; customCountryCode?: string; telefono?: string; acceptTerms?: string }>({});
+  const [fecha, setFecha] = useState("");
+  const [errors, setErrors] = useState<{ nombre?: string; email?: string; countryCode?: string; customCountryCode?: string; telefono?: string; acceptTerms?: string; fecha?: string }>({});
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [touched, setTouched] = useState<{ nombre?: boolean; email?: boolean; telefono?: boolean }>({});
 
@@ -97,6 +102,14 @@ export const LeadCaptureModal = memo(function LeadCaptureModal({
   const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
+
+    if (pedirFecha) {
+      const hoy = new Date().toISOString().split("T")[0];
+      if (!fecha || fecha > hoy || fecha < "1900-01-01") {
+        setErrors({ fecha: "Ingresa tu fecha de nacimiento" });
+        return;
+      }
+    }
 
     const result = leadSchema.safeParse({ nombre, email, countryCode, customCountryCode, telefono, acceptTerms });
     
@@ -112,8 +125,8 @@ export const LeadCaptureModal = memo(function LeadCaptureModal({
 
     const finalCountryCode = countryCode === "other" ? customCountryCode : countryCode;
     const fullPhone = `${finalCountryCode}${telefono}`;
-    onSubmit(result.data.nombre, result.data.email, fullPhone);
-  }, [nombre, email, countryCode, customCountryCode, telefono, acceptTerms, onSubmit]);
+    onSubmit(result.data.nombre, result.data.email, fullPhone, pedirFecha ? fecha : undefined);
+  }, [nombre, email, countryCode, customCountryCode, telefono, acceptTerms, fecha, pedirFecha, onSubmit]);
 
   const handleTelefonoChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setTelefono(e.target.value.replace(/\D/g, ''));
@@ -195,6 +208,25 @@ export const LeadCaptureModal = memo(function LeadCaptureModal({
                 </p>
               )}
             </div>
+
+            {/* Fecha de nacimiento (solo si la página no la conoce) */}
+            {pedirFecha && (
+              <div className="space-y-2">
+                <Label htmlFor="fecha-nacimiento" className="text-sm font-medium text-foreground">
+                  Fecha de nacimiento *
+                </Label>
+                <input
+                  id="fecha-nacimiento"
+                  type="date"
+                  value={fecha}
+                  onChange={(e) => setFecha(e.target.value)}
+                  max={new Date().toISOString().split("T")[0]}
+                  disabled={isSubmitting}
+                  className="w-full px-4 py-3 rounded-full border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                />
+                {errors.fecha && <p className="text-xs text-destructive animate-fade-in">{errors.fecha}</p>}
+              </div>
+            )}
 
             {/* WhatsApp */}
             <div className="space-y-2">

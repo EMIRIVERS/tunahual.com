@@ -1,3 +1,4 @@
+import { CapturaLectura } from '@/components/CapturaLectura';
 import { useParams, Link } from 'react-router-dom';
 import { useNahualBySlug } from '@/hooks/useNahualBySlug';
 import { getNahualGlifo } from '@/data/nahualGlifos';
@@ -472,6 +473,10 @@ export default function NahualPage() {
               </Link>
             )}
           </nav>
+
+          <div className="mt-10">
+            <CapturaLectura nahual={nahual} origen="nahual" />
+          </div>
         </main>
 
         {/* Footer */}
