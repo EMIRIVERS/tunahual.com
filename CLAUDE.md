@@ -45,21 +45,47 @@ Implementadas; se encienden poniendo su clave en Vercel + redeploy. Sin clave = 
 - Email de la lectura (Resend): `RESEND_API_KEY`, `EMAIL_FROM` (`api/send-reading.ts`).
 - Ver `.env.example` para la lista completa.
 
-## Flujo actual de la calculadora
-Fecha → calcular → **se muestra la lectura primero** (sin muro) → invitación a
-"Recibir mi lectura por email" (nombre + email + **WhatsApp, los tres
-obligatorios** desde 2026-07-21). El lead se guarda en Supabase, se sincroniza
-siempre al CRM (antes era condicional porque el teléfono era opcional), y se
-envía el email si Resend está configurado.
+## Flujo actual de la calculadora (desde 2026-10-04, lectura por capas)
+Fecha → calcular → **nahual, tono, glifo, maíz, elemento y trecena siguen libres**
+(es lo que la gente comparte; no se cobra ni se pide nada). La **Cruz Maya y "El
+cielo de tu nacimiento"** (luna, Cuenta Larga, Haab', cargador) aparecen borrosas
+(`CapaBloqueada.tsx`) con la invitación "Tus nueve energías te esperan…" hasta que
+la persona deja nombre, email y **WhatsApp** (los tres obligatorios, más casilla de
+términos/privacidad). Al enviar, la capa se abre al instante, el lead se guarda en
+Supabase, se sincroniza al CRM (`api/sync-lead.ts`), se manda a Kajabi con etiquetas
+`tunahual` y `nahual-<slug>` (`api/kajabi.ts`, requiere `KAJABI_WEBHOOK_URL`) y se
+envía el email si Resend está configurado. El navegador recuerda que ya dejó sus
+datos (`localStorage: tunahual_cruz_abierta`).
 
-Desde 2026-07-21 la home (`Index.tsx`) también tiene: video de fondo
-(`public/videos/fondo-tu-nahual.mp4`, cae al patrón maya si falla o hay
-`prefers-reduced-motion`) y el widget "Energía de hoy" (`EnergiaDelDia.tsx`,
-Nahual/Tono del día + indicaciones). El resultado (`MayanResultModal.tsx`) se
-rediseñó con cualidades/sombras separadas, spotlight de tono y tarjeta de
-significado; el Cargador (año bearer) está listo pero oculto tras
-`CARGADOR_HABILITADO=false` en `src/utils/cargador.ts` hasta que la clienta
-confirme la fecha ancla del año nuevo solar.
+El cierre del resultado ofrece el "Mapa de Energía" si existe `VITE_OFERTA_PDF_URL`;
+sin ella invita a azulanaite.com. Eventos: `calcular_nahual`, `lead_enviado`,
+`oferta_pdf_click`, `tarjeta_historia`. GA4/Meta Pixel siguen apagados hasta poner
+`VITE_GA_ID` y `VITE_META_PIXEL_ID` en Vercel + redeploy.
+
+Otros: video de fondo (`public/videos/fondo-tu-nahual.mp4`), widget "Energía de hoy"
+(con la luna del día), tarjeta 9:16 para historias (`src/utils/tarjetaHistoria.ts`),
+app instalable (`public/manifest.webmanifest`, `public/sw.js` solo pantalla offline).
+
+## Fuente única de maíces / elementos / direcciones
+`src/data/maices.ts`. Rojo=Agua, Blanco=Aire, Negro=Tierra, Amarillo=Fuego. Se aplica
+encima de lo que traiga la tabla `nahuales` (hook `useMayanData`, `useNahualBySlug`,
+`KinPage`, `ResultadoPage`, tablas del admin). La migración
+`20261004000000_canon_maices_elementos.sql` alinea la BD (**pendiente de aplicar**).
+Dirección Oeste (negro) confirmada; Este/Norte/Sur marcadas `confirmada: false`.
+
+## Calendario: cálculos
+- `src/utils/cuentaLarga.ts`: Cuenta Larga y Haab', correlación GMT 584283.
+- `src/utils/luna.ts`: ocho fases con `astronomy-engine` (corre en el navegador).
+- `src/utils/cargador.ts`: ancla 18 feb 2026 = 1 Kej, año maya 5141, años de 365
+  días. `CARGADOR_HABILITADO=false`: **no activar hasta tener los textos de los
+  cuatro cargadores de Azul Anaité** (`cargadorEsencia` es borrador).
+- Todos con tests contra las fechas ancla (3 oct 2026, 14 sep 2026, 15 mar 1990).
+
+## Mapa de Energía (PDF de 11 USD)
+`bun run mapas -- --kin 7-aqabal` · `--all` (los 260, ~33 s) ·
+`--nombre "Ana" --fecha 1990-03-15` (personalizado, con luna y cargador).
+Script en `scripts/mapa-energia/generar.ts`. Las páginas 2, 7 y 8 llevan el pie
+BORRADOR hasta que Azul Anaité dicte esos textos.
 
 ## Estilo / esencia (NO romper)
 - Paleta bronce-oro (`#a3732b`) + crema + esencia maya. Titulares en serif

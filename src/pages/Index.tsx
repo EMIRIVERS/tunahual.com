@@ -269,7 +269,7 @@ const Index = () => {
     } finally {
       setIsSubmittingLead(false);
     }
-  }, [result, selectedDate, birthDate, toast]);
+  }, [result, selectedDate, birthDate, toast, setLeadSubmitted]);
 
   const handleCloseLeadModal = useCallback(() => setIsLeadModalOpen(false), []);
   const handleCloseResultModal = useCallback(() => setIsResultModalOpen(false), []);
