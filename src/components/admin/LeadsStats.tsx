@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Lead } from '@/hooks/useAdminData';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import { Users, Calendar, Sun, Hash } from 'lucide-react';
+import { getMaizInfo } from '@/data/maices';
 
 interface LeadsStatsProps {
   leads: Lead[];
@@ -10,28 +11,13 @@ interface LeadsStatsProps {
 
 const COLORS = ['hsl(35, 60%, 40%)', 'hsl(52, 65%, 50%)', 'hsl(0, 60%, 50%)', 'hsl(200, 60%, 50%)', 'hsl(120, 40%, 45%)', 'hsl(280, 50%, 50%)', 'hsl(30, 70%, 50%)', 'hsl(180, 50%, 45%)'];
 
-const nahualData: Record<string, { puntoCardinal: string; colorMaiz: string; elemento: string }> = {
-  'Imox': { puntoCardinal: 'Este', colorMaiz: 'Rojo', elemento: 'Agua' },
-  "Iq'": { puntoCardinal: 'Norte', colorMaiz: 'Blanco', elemento: 'Aire' },
-  "Aq'ab'al": { puntoCardinal: 'Oeste', colorMaiz: 'Negro', elemento: 'Luz y Oscuridad' },
-  "K'at": { puntoCardinal: 'Sur', colorMaiz: 'Amarillo', elemento: 'Fuego' },
-  'Kan': { puntoCardinal: 'Este', colorMaiz: 'Rojo', elemento: 'Fuego' },
-  'Kame': { puntoCardinal: 'Norte', colorMaiz: 'Blanco', elemento: 'Tierra' },
-  'Kej': { puntoCardinal: 'Oeste', colorMaiz: 'Negro', elemento: 'Aire' },
-  "Q'anil": { puntoCardinal: 'Sur', colorMaiz: 'Amarillo', elemento: 'Tierra' },
-  'Toj': { puntoCardinal: 'Este', colorMaiz: 'Rojo', elemento: 'Fuego' },
-  "Tz'i'": { puntoCardinal: 'Norte', colorMaiz: 'Blanco', elemento: 'Agua' },
-  "B'atz'": { puntoCardinal: 'Oeste', colorMaiz: 'Negro', elemento: 'Aire' },
-  'E': { puntoCardinal: 'Sur', colorMaiz: 'Amarillo', elemento: 'Tierra' },
-  'Aj': { puntoCardinal: 'Este', colorMaiz: 'Rojo', elemento: 'Fuego' },
-  "I'x": { puntoCardinal: 'Norte', colorMaiz: 'Blanco', elemento: 'Tierra' },
-  "Tz'ikin": { puntoCardinal: 'Oeste', colorMaiz: 'Negro', elemento: 'Aire' },
-  'Ajmaq': { puntoCardinal: 'Sur', colorMaiz: 'Amarillo', elemento: 'Tierra' },
-  "No'j": { puntoCardinal: 'Este', colorMaiz: 'Rojo', elemento: 'Aire' },
-  'Tijax': { puntoCardinal: 'Norte', colorMaiz: 'Blanco', elemento: 'Fuego' },
-  'Kawoq': { puntoCardinal: 'Oeste', colorMaiz: 'Negro', elemento: 'Agua' },
-  'Ajpu': { puntoCardinal: 'Sur', colorMaiz: 'Amarillo', elemento: 'Fuego' },
-};
+// Maíz, elemento y dirección salen del canon (src/data/maices.ts).
+const nahualData = new Proxy({} as Record<string, { puntoCardinal: string; colorMaiz: string; elemento: string }>, {
+  get: (_t, nombre: string) => {
+    const i = getMaizInfo(nombre);
+    return i ? { puntoCardinal: i.direccion, colorMaiz: i.color, elemento: i.elemento } : undefined;
+  },
+});
 
 export function LeadsStats({ leads }: LeadsStatsProps) {
   const stats = useMemo(() => {
@@ -279,8 +265,7 @@ export function LeadsStats({ leads }: LeadsStatsProps) {
                         'Agua': '#3b82f6',
                         'Fuego': '#ef4444',
                         'Tierra': '#84cc16',
-                        'Aire': '#a855f7',
-                        'Luz y Oscuridad': '#6b7280'
+                        'Aire': '#a855f7'
                       };
                       return <Cell key={`cell-${index}`} fill={colorMap[entry.name] || COLORS[index]} />;
                     })}

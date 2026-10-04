@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { atributosCanon } from '@/data/maices';
 
 export interface NahualDB {
   id: string;
@@ -48,7 +49,7 @@ export function useMayanData() {
         if (nahualRes.error) throw nahualRes.error;
         if (tonoRes.error) throw tonoRes.error;
 
-        setNahuales(nahualRes.data || []);
+        setNahuales((nahualRes.data || []).map(atributosCanon));
         setTonos(tonoRes.data || []);
       } catch (err: any) {
         console.error('Error fetching Mayan data:', err);

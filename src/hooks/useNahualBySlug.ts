@@ -1,3 +1,4 @@
+import { atributosCanon } from '@/data/maices';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { getNahualFromSlug } from '@/data/nahualSlugs';
@@ -73,7 +74,7 @@ export function useNahualBySlug(slug: string | undefined) {
         if (data) {
           const expanded = data.nahual_conocimiento_expandido;
           setNahual({
-            ...data,
+            ...atributosCanon(data),
             significado_profundo: expanded?.significado_profundo,
             ceremonias_rituales: expanded?.ceremonias_rituales,
             mensaje_espiritual: expanded?.mensaje_espiritual,

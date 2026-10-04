@@ -1,3 +1,4 @@
+import { atributosCanon } from '@/data/maices';
 import { useParams, Link } from 'react-router-dom';
 import { useState, useEffect, useMemo } from 'react';
 import { Helmet } from 'react-helmet-async';
@@ -122,7 +123,7 @@ export default function KinPage() {
         if (!nahualRes.data || !tonoRes.data) {
           setError('Kin no encontrado');
         } else {
-          setNahual(nahualRes.data);
+          setNahual(atributosCanon(nahualRes.data));
           setTono(tonoRes.data);
         }
       } catch (err) {
