@@ -4,8 +4,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion, AnimatePresence } from "framer-motion";
 import { MayanKinDB, MayanCrossDB, calculateTrecena } from "@/utils/mayanCalculations";
 import { useMayanData } from "@/hooks/useMayanData";
-import { getNahualConocimiento } from "@/data/mayanKnowledge";
-import { X, Heart, Grid3X3, BookOpen, Star, Mail, Check } from "lucide-react";
+import { getResumenConocimiento } from "@/data/mayanKnowledge";
+import { X, Heart, Grid3X3, BookOpen, Star, Mail, Check, ArrowRight } from "lucide-react";
 import { MayanCrossDisplay } from "./MayanCrossDisplay";
 import cornIcon from "@/assets/icons/corn.svg";
 
@@ -19,6 +19,19 @@ import { TonoSpotlightCard } from "./result/TonoSpotlightCard";
 import { NahualAttributesGrid } from "./result/NahualAttributesGrid";
 import { ConocimientoProfundoTab } from "./result/ConocimientoProfundoTab";
 import { ShareButtons } from "./result/ShareButtons";
+import { CapaBloqueada } from "./result/CapaBloqueada";
+import { CieloNacimientoCard } from "./result/CieloNacimientoCard";
+import { trackEvent } from "@/lib/analytics";
+import { ComprarMapa } from "./result/ComprarMapa";
+import { CHECKOUT_MAPA_HABILITADO } from "@/lib/checkoutMapa";
+import { nahualToSlug } from "@/data/nahualSlugs";
+import { primeraFrase } from "@/lib/lectura";
+
+// Liga de pago del Mapa de Energía (Kajabi o Stripe), alternativa al cobro
+// propio (VITE_CHECKOUT_MAPA). Se define en Vercel y se hornea en el build.
+const OFERTA_PDF_URL = (import.meta.env.VITE_OFERTA_PDF_URL as string | undefined)?.trim() || "";
+// Sin cobro ni liga, la tarjeta del Mapa queda en «Muy pronto» y solo pide el correo para avisar.
+const MAPA_A_LA_VENTA = CHECKOUT_MAPA_HABILITADO || !!OFERTA_PDF_URL;
 
 interface MayanResultModalProps {
   isOpen: boolean;
@@ -60,8 +73,8 @@ export function MayanResultModal({
 }: MayanResultModalProps) {
   const { nahuales, tonos } = useMayanData();
 
-  // Get expanded knowledge for this Nahual
-  const conocimientoExpandido = result ? getNahualConocimiento(result.nahual.nombre) : null;
+  // Resumen del conocimiento profundo (la interpretación extensa no se publica)
+  const resumenConocimiento = result ? getResumenConocimiento(result.nahual.nombre) : null;
   
   // Calculate Trecena
   const trecenaNahual = result ? calculateTrecena(result, nahuales) : null;
@@ -109,16 +122,16 @@ export function MayanResultModal({
               <div className="h-px flex-1 bg-primary/40" />
             </motion.div>
 
-            {/* Marco: cómo se combinan el tono y el nahual de este día */}
+            {/* Lo que se lee sin dejar datos: glifo y elemento, y una frase del nahual */}
             <motion.div
               variants={itemVariants}
-              className="mx-6 p-5 rounded-2xl bg-primary/5 border-l-4 border-primary/40"
+              className="mx-6 p-5 rounded-2xl bg-primary/5 border-l-4 border-primary/40 space-y-2"
             >
+              <p className="eyebrow text-foreground/70">
+                Glifo {result.nahual.animal_guia} · Elemento {result.nahual.elemento}
+              </p>
               <p className="text-sm leading-relaxed text-foreground/90">
-                El tono <strong className="font-medium">{result.tone.nombre}</strong> te da{" "}
-                {result.tone.significado?.toLowerCase()}. El nahual{" "}
-                <strong className="font-medium">{result.nahual.nombre}</strong> significa{" "}
-                {result.nahual.significado?.toLowerCase()}.
+                {primeraFrase(result.nahual.descripcion)}
               </p>
             </motion.div>
 
@@ -154,48 +167,102 @@ export function MayanResultModal({
 
                 {/* Tab: Nacimiento */}
                 <TabsContent value="nacimiento" className="space-y-6 mt-0">
-                  <CualidadesRow result={result} />
-                  <TonoSpotlightCard result={result} />
-                  <SombrasList result={result} />
-                  <AnimalGuiaCard result={result} />
-                  {trecenaNahual && <TrecenaCard trecenaNahual={trecenaNahual} />}
-                  {CARGADOR_HABILITADO && birthDate && (
-                    <CargadorCard birthDate={birthDate} nahuales={nahuales} tonos={tonos} />
-                  )}
-                  <NahualAttributesGrid result={result} />
-                  <motion.div
-                    variants={itemVariants}
-                    className="relative overflow-hidden rounded-2xl p-6 bg-gradient-to-br from-[#3a1f38] to-[#1c0f1c] border border-[#5c3158]/50"
+                  <TonoSpotlightCard result={result} breve />
+                  <CapaBloqueada
+                    abierta={!!leadSubmitted}
+                    titulo="Tu lectura completa te espera"
+                    texto="Tu animal guía, tus cualidades, tu trecena y el cielo de tu nacimiento. Déjame tu correo y te los envío."
+                    boton="Abrir mi lectura"
+                    onAbrir={onSaveByEmail}
+                    vistaPrevia
                   >
-                    <img
-                      src={cornIcon}
-                      alt=""
-                      aria-hidden="true"
-                      className="absolute -bottom-6 -right-6 w-32 h-32 opacity-20 pointer-events-none"
-                    />
-                    <p className="eyebrow text-[#d4a574]/70 text-center mb-1">Significado</p>
-                    <h4 className="font-serif text-2xl text-[#f4efc5] text-center mb-4">
-                      {result.nahual.nombre}
-                    </h4>
-                    <p className="relative z-10 text-sm text-[#f4efc5]/85 leading-relaxed">
-                      {result.nahual.descripcion}
-                    </p>
-                  </motion.div>
+                    <div className="space-y-6">
+                      <CualidadesRow result={result} />
+                      <SombrasList result={result} />
+                      <AnimalGuiaCard result={result} />
+                      {trecenaNahual && <TrecenaCard trecenaNahual={trecenaNahual} />}
+                      <NahualAttributesGrid result={result} />
+                      <motion.div
+                        variants={itemVariants}
+                        className="relative overflow-hidden rounded-2xl p-6 bg-gradient-to-br from-[#3a1f38] to-[#1c0f1c] border border-[#5c3158]/50"
+                      >
+                        <img
+                          src={cornIcon}
+                          alt=""
+                          aria-hidden="true"
+                          className="absolute -bottom-6 -right-6 w-32 h-32 opacity-20 pointer-events-none"
+                        />
+                        <p className="eyebrow text-[#d4a574]/70 text-center mb-1">Significado</p>
+                        <h4 className="font-serif text-2xl text-[#f4efc5] text-center mb-4">
+                          {result.nahual.nombre}
+                        </h4>
+                        <p className="relative z-10 text-sm text-[#f4efc5]/85 leading-relaxed">
+                          {result.nahual.descripcion}
+                        </p>
+                      </motion.div>
+                      {birthDate && (
+                        <div className="space-y-6">
+                          <CieloNacimientoCard birthDate={birthDate} />
+                          {CARGADOR_HABILITADO && (
+                            <CargadorCard birthDate={birthDate} nahuales={nahuales} tonos={tonos} />
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </CapaBloqueada>
                 </TabsContent>
 
                 {/* Tab: Cruz Maya */}
                 <TabsContent value="cruz" className="mt-0">
-                  {cross && <MayanCrossDisplay cross={cross} />}
+                  {cross && (
+                    <CapaBloqueada
+                      abierta={!!leadSubmitted}
+                      titulo="Tus nueve energías te esperan"
+                      texto="Déjame tu correo y te las envío: tu origen, tu destino y las energías que te acompañan."
+                      boton="Abrir mi Cruz Maya"
+                      onAbrir={onSaveByEmail}
+                    >
+                      <MayanCrossDisplay cross={cross} />
+                    </CapaBloqueada>
+                  )}
                 </TabsContent>
 
                 {/* Tab: Conocimiento Profundo */}
-                <TabsContent value="profundo" className="mt-0">
-                  {conocimientoExpandido && (
-                    <ConocimientoProfundoTab
-                      conocimiento={conocimientoExpandido}
-                      nahualNombre={result.nahual.nombre}
-                    />
+                <TabsContent value="profundo" className="mt-0 space-y-6">
+                  {resumenConocimiento && (
+                    <CapaBloqueada
+                      abierta={!!leadSubmitted}
+                      titulo={`El conocimiento de ${result.nahual.nombre}`}
+                      texto="Un resumen de su significado, su mensaje y su luz. Déjame tu correo y te lo envío."
+                      boton="Abrir el resumen"
+                      onAbrir={onSaveByEmail}
+                    >
+                      <ConocimientoProfundoTab
+                        resumen={resumenConocimiento}
+                        nahualNombre={result.nahual.nombre}
+                      />
+                    </CapaBloqueada>
                   )}
+                  {/* La interpretación extensa no se publica: vive en el Mapa (tarjeta del cierre) */}
+                  <div className="rounded-2xl p-5 bg-card/60 border border-border/60 text-center space-y-2">
+                    <p className="eyebrow text-primary/80">La lectura extensa</p>
+                    <p className="text-sm text-muted-foreground leading-relaxed max-w-sm mx-auto">
+                      {MAPA_A_LA_VENTA
+                        ? `La interpretación extensa de ${result.nahual.nombre} no se publica en esta página: llega en tu Mapa de Energía.`
+                        : `La interpretación extensa de ${result.nahual.nombre} no se publica en esta página: será parte de tu Mapa de Energía.`}
+                    </p>
+                    <a
+                      href="#mapa-energia"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        document.getElementById("mapa-energia")?.scrollIntoView({ behavior: "smooth", block: "center" });
+                      }}
+                      className="inline-flex items-center gap-1.5 text-sm font-medium text-primary border-b border-primary/40 pb-0.5 hover:border-primary transition-colors"
+                    >
+                      {MAPA_A_LA_VENTA ? "Quiero mi Mapa de Energía" : "Conocer el Mapa"}
+                      <ArrowRight className="w-4 h-4" aria-hidden="true" />
+                    </a>
+                  </div>
                 </TabsContent>
               </Tabs>
 
@@ -233,26 +300,54 @@ export function MayanResultModal({
 
                 <ShareButtons result={result} cross={cross} />
                 <motion.div
+                  id="mapa-energia"
                   variants={itemVariants}
                   className="rounded-2xl p-6 bg-card/60 border border-border/60 text-center flex flex-col items-center gap-3"
                 >
-                  <Star className="w-5 h-5 text-primary/70" />
-                  <p className="font-serif text-xl text-foreground">
-                    Tu camino apenas comienza
-                  </p>
+                  <Star className="w-5 h-5 text-primary/70" aria-hidden="true" />
+                  {!MAPA_A_LA_VENTA && <p className="eyebrow text-primary/80 -mb-1">Muy pronto</p>}
+                  <p className="font-serif text-2xl text-foreground">Tu Mapa de Energía</p>
                   <p className="text-sm text-muted-foreground leading-relaxed max-w-sm">
-                    La tradición maya k'iche' es vasta. En Azul Anaité acompañamos
-                    a quienes desean caminarla con profundidad.
+                    {`La lectura personal de ${result.tone.numero} ${result.nahual.nombre} con tu nombre y tu fecha de nacimiento, tu cruz de nueve energías y su interpretación extensa, en 24 páginas que llegan a tu correo.`}
                   </p>
-                  <a
-                    href="https://azulanaite.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-sm font-medium text-primary border-b border-primary/40 pb-0.5 hover:border-primary transition-colors mt-1"
-                  >
-                    Conoce Azul Anaité
-                    <span aria-hidden>→</span>
-                  </a>
+                  {CHECKOUT_MAPA_HABILITADO ? (
+                    <ComprarMapa
+                      nahual={result.nahual.nombre}
+                      nahualSlug={nahualToSlug[result.nahual.nombre] || result.nahual.nombre.toLowerCase()}
+                      tono={result.tone.numero}
+                      birthDate={birthDate}
+                    />
+                  ) : OFERTA_PDF_URL ? (
+                    <a
+                      href={OFERTA_PDF_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() =>
+                        trackEvent("oferta_pdf_click", {
+                          nahual: result.nahual.nombre,
+                          tono: result.tone.numero,
+                        })
+                      }
+                      className="inline-flex items-center gap-1.5 text-sm font-medium text-primary border-b border-primary/40 pb-0.5 hover:border-primary transition-colors mt-1"
+                    >
+                      Quiero mi Mapa de Energía
+                      <ArrowRight className="w-4 h-4" aria-hidden="true" />
+                    </a>
+                  ) : leadSubmitted ? (
+                    <p className="text-sm text-foreground/80 flex items-start justify-center gap-2 text-left max-w-xs">
+                      <Check className="w-4 h-4 text-primary" aria-hidden="true" />
+                      Te avisaremos a tu correo cuando esté listo.
+                    </p>
+                  ) : onSaveByEmail ? (
+                    <Button
+                      onClick={onSaveByEmail}
+                      variant="outline"
+                      className="rounded-full px-6 py-5 text-sm font-medium gap-2 border-primary/40 text-primary hover:bg-primary/5"
+                    >
+                      <Mail className="w-4 h-4" aria-hidden="true" />
+                      Avisarme cuando esté listo
+                    </Button>
+                  ) : null}
                 </motion.div>
                 <Button
                   onClick={onClose}

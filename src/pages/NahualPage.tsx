@@ -1,20 +1,19 @@
+import { CapturaLectura } from '@/components/CapturaLectura';
 import { useParams, Link } from 'react-router-dom';
 import { useNahualBySlug } from '@/hooks/useNahualBySlug';
 import { getNahualGlifo } from '@/data/nahualGlifos';
 import { nahualToSlug, nahualOrder } from '@/data/nahualSlugs';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
-import { 
-  ArrowLeft, 
-  Compass, 
-  Flame, 
-  Heart, 
-  Sun, 
+import {
+  ArrowRight,
+  Compass,
   TreePine,
   Star,
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
+import { introNahual, LLAMADO_CALCULAR } from '@/lib/lectura';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -26,13 +25,6 @@ const cardinalColors: Record<string, string> = {
   "Norte": "bg-white/40 text-gray-800 border-gray-400/30",
   "Oeste": "bg-gray-800/20 text-gray-900 border-gray-700/30",
   "Sur": "bg-amber-400/20 text-amber-700 border-amber-500/30",
-};
-
-const elementIcons: Record<string, React.ReactNode> = {
-  "Agua": <span className="text-2xl">💧</span>,
-  "Aire": <span className="text-2xl">🌬️</span>,
-  "Tierra": <span className="text-2xl">🌍</span>,
-  "Fuego": <span className="text-2xl">🔥</span>,
 };
 
 export default function NahualPage() {
@@ -206,8 +198,7 @@ export default function NahualPage() {
                     {nahual.punto_cardinal}
                   </Badge>
                   <Badge variant="outline">
-                    {elementIcons[nahual.elemento]}
-                    <span className="ml-1">{nahual.elemento}</span>
+                    {nahual.elemento}
                   </Badge>
                   <Badge variant="secondary">
                     {nahual.color_maiz}
@@ -220,9 +211,15 @@ export default function NahualPage() {
                 <p className="text-xl text-primary font-medium mb-4">
                   {nahual.significado}
                 </p>
-                <p className="text-lg text-muted-foreground max-w-2xl">
-                  {nahual.descripcion}
-                </p>
+                {/* Introducción pública: datos y descripción. La lectura
+                    completa se abre con correo y la extensa vive en el Mapa. */}
+                <div className="space-y-4 max-w-2xl">
+                  {introNahual(nahual).map((parrafo, i) => (
+                    <p key={i} className={i === 1 ? "text-lg text-muted-foreground" : "text-muted-foreground"}>
+                      {parrafo}
+                    </p>
+                  ))}
+                </div>
               </div>
             </div>
           </motion.section>
@@ -248,26 +245,6 @@ export default function NahualPage() {
               </CardContent>
             </Card>
 
-            {/* Sombras / Aspectos a trabajar */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Heart className="w-5 h-5 text-primary" />
-                  Aspectos a Trabajar
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2">
-                  {nahual.sombras?.map((sombra, i) => (
-                    <li key={i} className="flex items-center gap-2">
-                      <span className="w-4 h-4 rounded-full bg-muted flex items-center justify-center text-xs">•</span>
-                      <span>{sombra}</span>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-
             {/* Conexiones */}
             <Card>
               <CardHeader>
@@ -283,153 +260,22 @@ export default function NahualPage() {
                 </div>
                 <Separator />
                 <div>
-                  <p className="text-sm text-muted-foreground">Elemento de Conexión</p>
-                  <p className="font-medium">{nahual.elemento_conexion}</p>
+                  <p className="text-sm text-muted-foreground">Elemento</p>
+                  <p className="font-medium">{nahual.elemento}</p>
                 </div>
                 <Separator />
                 <div>
-                  <p className="text-sm text-muted-foreground">Lugar de Poder</p>
-                  <p className="font-medium">{nahual.lugar_poder}</p>
+                  <p className="text-sm text-muted-foreground">Color del Maíz</p>
+                  <p className="font-medium">{nahual.color_maiz}</p>
                 </div>
                 <Separator />
                 <div>
-                  <p className="text-sm text-muted-foreground">Parte del Cuerpo</p>
-                  <p className="font-medium">{nahual.parte_cuerpo}</p>
+                  <p className="text-sm text-muted-foreground">Punto Cardinal</p>
+                  <p className="font-medium">{nahual.punto_cardinal}</p>
                 </div>
-                {nahual.fecundado_en && (
-                  <>
-                    <Separator />
-                    <div>
-                      <p className="text-sm text-muted-foreground">Fecundado en</p>
-                      <Link 
-                        to={`/nahual/${nahualToSlug[nahual.fecundado_en]}`}
-                        className="font-medium text-primary hover:underline"
-                      >
-                        {nahual.fecundado_en}
-                      </Link>
-                    </div>
-                  </>
-                )}
               </CardContent>
             </Card>
-
-            {/* Mensaje Espiritual */}
-            {nahual.mensaje_espiritual && (
-              <Card className="bg-primary/5 border-primary/20">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Sun className="w-5 h-5 text-primary" />
-                    Mensaje Espiritual
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="italic text-muted-foreground">
-                    "{nahual.mensaje_espiritual}"
-                  </p>
-                </CardContent>
-              </Card>
-            )}
           </div>
-
-          {/* Conocimiento Expandido */}
-          {(nahual.significado_profundo || nahual.ceremonias_rituales || nahual.trabajo_espiritual) && (
-            <section className="mb-12">
-              <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-                <Flame className="w-6 h-6 text-primary" />
-                Conocimiento Profundo
-              </h2>
-
-              <div className="space-y-6">
-                {nahual.significado_profundo && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-lg">Significado Profundo</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-muted-foreground">{nahual.significado_profundo}</p>
-                    </CardContent>
-                  </Card>
-                )}
-
-                {nahual.ceremonias_rituales && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-lg">Ceremonias y Rituales</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-muted-foreground">{nahual.ceremonias_rituales}</p>
-                    </CardContent>
-                  </Card>
-                )}
-
-                {nahual.trabajo_espiritual && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-lg">Trabajo Espiritual</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-muted-foreground">{nahual.trabajo_espiritual}</p>
-                    </CardContent>
-                  </Card>
-                )}
-
-                {nahual.relacion_naturaleza && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-lg">Relación con la Naturaleza</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-muted-foreground">{nahual.relacion_naturaleza}</p>
-                    </CardContent>
-                  </Card>
-                )}
-              </div>
-            </section>
-          )}
-
-          {/* Polaridades */}
-          {(nahual.polaridad_positiva || nahual.polaridad_negativa) && (
-            <section className="mb-12">
-              <h2 className="text-2xl font-bold mb-6">Polaridades</h2>
-              <div className="grid md:grid-cols-2 gap-6">
-                {nahual.polaridad_positiva && (
-                  <Card className="border-green-500/30 bg-green-500/5">
-                    <CardHeader>
-                      <CardTitle className="text-lg text-green-700">Polaridad Positiva</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <ul className="space-y-2">
-                        {nahual.polaridad_positiva.map((item, i) => (
-                          <li key={i} className="flex items-center gap-2">
-                            <span className="text-green-600">✓</span>
-                            <span>{item}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </CardContent>
-                  </Card>
-                )}
-
-                {nahual.polaridad_negativa && (
-                  <Card className="border-orange-500/30 bg-orange-500/5">
-                    <CardHeader>
-                      <CardTitle className="text-lg text-orange-700">Polaridad a Trabajar</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <ul className="space-y-2">
-                        {nahual.polaridad_negativa.map((item, i) => (
-                          <li key={i} className="flex items-center gap-2">
-                            <span className="text-orange-600">○</span>
-                            <span>{item}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </CardContent>
-                  </Card>
-                )}
-              </div>
-            </section>
-          )}
 
           {/* CTA Lead Capture */}
           <motion.div
@@ -440,12 +286,12 @@ export default function NahualPage() {
           >
             <h2 className="font-serif text-3xl font-semibold mb-3">Descubre tu propio Nahual</h2>
             <p className="text-muted-foreground mb-6 max-w-md mx-auto leading-relaxed">
-              Conoce tu signo maya por fecha de nacimiento y tu Cruz Maya completa
-              de nueve posiciones.
+              {LLAMADO_CALCULAR}
             </p>
             <Link to="/">
-              <Button variant="default" className="rounded-full" size="lg">
-                Calcular mi Nahual →
+              <Button variant="default" className="rounded-full gap-2" size="lg">
+                Calcular mi Nahual
+                <ArrowRight className="w-4 h-4" aria-hidden="true" />
               </Button>
             </Link>
           </motion.div>
@@ -472,6 +318,10 @@ export default function NahualPage() {
               </Link>
             )}
           </nav>
+
+          <div className="mt-10">
+            <CapturaLectura nahual={nahual} origen="nahual" />
+          </div>
         </main>
 
         {/* Footer */}

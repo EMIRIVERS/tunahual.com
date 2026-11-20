@@ -31,6 +31,7 @@ const NahualesIndex = lazy(() => import("./pages/NahualesIndex"));
 const ResultadoPage = lazy(() => import("./pages/ResultadoPage"));
 const KinIndex = lazy(() => import("./pages/KinIndex"));
 const KinPage = lazy(() => import("./pages/KinPage"));
+const Gracias = lazy(() => import("./pages/Gracias"));
 
 const queryClient = new QueryClient();
 
@@ -51,6 +52,7 @@ const App = () => (
                 <Route path="/resultado/:kinSlug" element={<ResultadoPage />} />
                 <Route path="/kin" element={<KinIndex />} />
                 <Route path="/kin/:kinSlug" element={<KinPage />} />
+                <Route path="/gracias" element={<Gracias />} />
                 <Route path="/admin" element={<Admin />} />
                 <Route path="/admin/login" element={<AdminLogin />} />
                 <Route path="/admin/reset-password" element={<ResetPassword />} />

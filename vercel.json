@@ -1,5 +1,12 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "functions": {
+    "api/generar-oraculo.ts": { "maxDuration": 300, "includeFiles": "{content/oraculo/**,assets/oraculo/**}" }
+  },
+  "crons": [{ "path": "/api/generar-oraculo?pendientes=1", "schedule": "0 14 * * *" }],
+  "headers": [
+    { "source": "/api/generar-oraculo", "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }] }
+  ],
   "rewrites": [
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]

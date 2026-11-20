@@ -13,7 +13,7 @@
  * tradición maya y permite verificación matemática.
  */
 
-import { NahualDB, TonoDB } from '@/hooks/useMayanData';
+import { NahualDB, TonoDB } from '../types/mayan';
 import { MayanKinDB, mod } from './mayanCalculations';
 
 const NUM_NAHUALES = 20;

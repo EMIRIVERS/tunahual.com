@@ -109,6 +109,49 @@
   }
 }
 
+@layer components {
+  /* Campo de fecha de la home. Safari/WebKit pega el valor arriba del input
+     (::-webkit-date-and-time-value no hereda altura ni alineado): se centra
+     con flex y se neutralizan los internos. Altura fija h-12 = 3rem. */
+  .campo-fecha {
+    -webkit-appearance: none;
+    appearance: none;
+    /* WebKit ignora display:flex en inputs de fecha; inline-flex sí lo respeta */
+    display: inline-flex;
+    align-items: center;
+    min-height: 3rem;
+    padding-block: 0;
+    line-height: 1.5rem;
+  }
+  .campo-fecha::-webkit-date-and-time-value {
+    text-align: left;
+    margin: 0;
+    min-height: 1.5rem;
+    line-height: 1.5rem;
+  }
+  .campo-fecha::-webkit-datetime-edit {
+    padding: 0;
+    line-height: 1.5rem;
+  }
+  .campo-fecha::-webkit-datetime-edit-fields-wrapper {
+    padding: 0;
+    display: flex;
+    align-items: center;
+  }
+  /* El ícono de calendario propio va a la izquierda; el nativo se oculta
+     pero sigue cubriendo el campo para abrir el selector al tocar. */
+  .campo-fecha::-webkit-calendar-picker-indicator {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+}
+
 @layer utilities {
   .hover-scale {
     @apply transition-transform duration-200 ease-out hover:scale-105 active:scale-95;
@@ -147,6 +190,33 @@
 
 .animate-fade-in {
   animation: fade-in 0.3s ease-out;
+}
+
+/* Velo de la home sobre la foto/video: deja ver el paisaje arriba (solo el
+   logo) y sube a crema casi opaco donde hay texto, para contraste AA. */
+.home-velo {
+  background:
+    linear-gradient(
+      180deg,
+      hsl(var(--background) / 0.3) 0%,
+      hsl(var(--background) / 0.74) 15rem,
+      hsl(var(--background) / 0.86) 55%,
+      hsl(var(--background) / 0.94) 100%
+    );
+}
+@media (min-width: 768px) {
+  .home-velo {
+    background:
+      linear-gradient(
+        90deg,
+        hsl(var(--background) / 0.9) 0%,
+        hsl(var(--background) / 0.82) 50%,
+        hsl(var(--background) / 0.7) 100%
+      );
+  }
+}
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
+  .home-velo { background: hsl(var(--background) / 0.96); }
 }
 
 /* Background pattern - preloaded via CSS for better LCP */

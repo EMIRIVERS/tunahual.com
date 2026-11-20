@@ -1,9 +1,12 @@
 import { memo } from "react";
 import { motion } from "framer-motion";
 import { MayanKinDB } from "@/utils/mayanCalculations";
+import { primeraFrase } from "@/lib/lectura";
 
 interface TonoSpotlightCardProps {
   result: MayanKinDB;
+  /** Solo la primera frase y sin cualidades (lo que se lee sin dejar datos). */
+  breve?: boolean;
 }
 
 const itemVariants = {
@@ -11,7 +14,7 @@ const itemVariants = {
   visible: { opacity: 1, y: 0, scale: 1 },
 };
 
-export const TonoSpotlightCard = memo(function TonoSpotlightCard({ result }: TonoSpotlightCardProps) {
+export const TonoSpotlightCard = memo(function TonoSpotlightCard({ result, breve = false }: TonoSpotlightCardProps) {
   const { tone } = result;
 
   return (
@@ -29,10 +32,12 @@ export const TonoSpotlightCard = memo(function TonoSpotlightCard({ result }: Ton
       </div>
 
       {tone.descripcion && (
-        <p className="text-sm leading-relaxed text-[#f4efc5]/80 mt-4">{tone.descripcion}</p>
+        <p className="text-sm leading-relaxed text-[#f4efc5]/80 mt-4">
+          {breve ? primeraFrase(tone.descripcion) : tone.descripcion}
+        </p>
       )}
 
-      {tone.cualidades && tone.cualidades.length > 0 && (
+      {!breve && tone.cualidades && tone.cualidades.length > 0 && (
         <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-[#f4efc5]/10">
           {tone.cualidades.map((c, i) => (
             <span

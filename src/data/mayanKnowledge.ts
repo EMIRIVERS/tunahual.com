@@ -557,6 +557,31 @@ export function getNahualConocimiento(nombreNahual: string): NahualConocimientoE
   return nahualConocimientoExpandido[nombreNahual];
 }
 
+/**
+ * Resumen del conocimiento profundo que se abre con correo y WhatsApp.
+ * Se arma recortando los campos que ya existen (no se redacta nada nuevo):
+ * significado profundo, relación con la naturaleza, mensaje espiritual y la
+ * polaridad de luz. Ceremonias, trabajo espiritual, fecundación y aspectos a
+ * trabajar quedan para la lectura extensa, que no se publica en la web.
+ */
+export interface ResumenConocimiento {
+  significado: string;
+  naturaleza: string;
+  mensaje: string;
+  luz: string[];
+}
+
+export function getResumenConocimiento(nombreNahual: string): ResumenConocimiento | undefined {
+  const c = nahualConocimientoExpandido[nombreNahual];
+  if (!c) return undefined;
+  return {
+    significado: c.significadoProfundo,
+    naturaleza: c.relacionConNaturaleza,
+    mensaje: c.mensajeEspiritual,
+    luz: c.polaridadPositiva,
+  };
+}
+
 export function getGuardianPorNombre(nombre: string): Guardian | undefined {
   return guardianes.find(g => 
     g.nombre.toLowerCase().includes(nombre.toLowerCase()) || 

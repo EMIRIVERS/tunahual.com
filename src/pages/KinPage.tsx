@@ -1,18 +1,21 @@
+import { CapturaLectura } from '@/components/CapturaLectura';
+import { atributosCanon } from '@/data/maices';
 import { useParams, Link } from 'react-router-dom';
 import { useState, useEffect, useMemo } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { supabase } from '@/integrations/supabase/client';
 import { getNahualGlifo } from '@/data/nahualGlifos';
-import { nahualToSlug, nahualOrder, slugToNahual } from '@/data/nahualSlugs';
+import { nahualToSlug, parseKinSlug, type KinParsed } from '@/data/nahualSlugs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { 
-  Compass, Star, Heart, Calendar, ArrowLeft, ArrowRight, Share2 
+  Compass, Calendar, ArrowLeft, ArrowRight, Share2 
 } from 'lucide-react';
+import { introKin } from '@/lib/lectura';
 import logoAzulAnaite from '@/assets/logo-azul-anaite.png';
 
-interface NahualData {
+export interface NahualData {
   id: string;
   nombre: string;
   significado: string;
@@ -25,7 +28,7 @@ interface NahualData {
   sombras: string[];
 }
 
-interface TonoData {
+export interface TonoData {
   id: string;
   numero: number;
   nombre: string;
@@ -66,44 +69,7 @@ export default function KinPage() {
   const [error, setError] = useState<string | null>(null);
 
   // Parse slug and calculate navigation
-  const parsed = useMemo(() => {
-    if (!kinSlug) return null;
-    const match = kinSlug.match(/^(\d+)-([a-z]+)$/i);
-    if (!match) return null;
-
-    const tonoNum = parseInt(match[1], 10);
-    const nahualSlug = match[2].toLowerCase();
-    const nahualName = slugToNahual[nahualSlug];
-
-    if (!nahualName || tonoNum < 1 || tonoNum > 13) return null;
-
-    const nahualIndex = nahualOrder.indexOf(nahualName);
-    const kinNumber = ((tonoNum - 1) * 20 + nahualIndex) % 260 + 1;
-
-    // Calculate prev/next Kin
-    const prevKinNum = kinNumber === 1 ? 260 : kinNumber - 1;
-    const nextKinNum = kinNumber === 260 ? 1 : kinNumber + 1;
-
-    const getKinSlug = (num: number) => {
-      // Reverse calculation: kinNumber = ((tono-1)*20 + nahualIndex) % 260 + 1
-      // We need to find tono and nahualIndex for a given kinNumber
-      const idx = num - 1;
-      const nIdx = idx % 20;
-      const tIdx = idx % 13;
-      return `${tIdx + 1}-${nahualToSlug[nahualOrder[nIdx]]}`;
-    };
-
-    return {
-      tonoNum,
-      nahualName,
-      nahualIndex,
-      kinNumber,
-      prevSlug: getKinSlug(prevKinNum),
-      nextSlug: getKinSlug(nextKinNum),
-      prevKin: prevKinNum,
-      nextKin: nextKinNum,
-    };
-  }, [kinSlug]);
+  const parsed = useMemo(() => parseKinSlug(kinSlug), [kinSlug]);
 
   useEffect(() => {
     async function fetchData() {
@@ -122,7 +88,7 @@ export default function KinPage() {
         if (!nahualRes.data || !tonoRes.data) {
           setError('Kin no encontrado');
         } else {
-          setNahual(nahualRes.data);
+          setNahual(atributosCanon(nahualRes.data));
           setTono(tonoRes.data);
         }
       } catch (err) {
@@ -136,12 +102,6 @@ export default function KinPage() {
     fetchData();
   }, [parsed]);
 
-  const handleShare = () => {
-    const url = `https://www.tunahual.com/kin/${kinSlug}`;
-    const text = `🌟 Kin ${parsed?.kinNumber}: ${tono?.numero} ${nahual?.nombre}\n✨ Descubre tu Kin Maya:`;
-    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(`${text}\n${url}`)}`;
-    window.open(whatsappUrl, '_blank');
-  };
 
   if (loading) {
     return (
@@ -163,9 +123,22 @@ export default function KinPage() {
     );
   }
 
+  return <KinVista kinSlug={kinSlug ?? ""} parsed={parsed} nahual={nahual} tono={tono} />;
+}
+
+/** La página ya con datos (separada para poder probarla sin red). */
+export function KinVista({ kinSlug, parsed, nahual, tono }: { kinSlug: string; parsed: KinParsed; nahual: NahualData; tono: TonoData }) {
+  const handleShare = () => {
+    const url = `https://www.tunahual.com/kin/${kinSlug}`;
+    const text = `🌟 Kin ${parsed?.kinNumber}: ${tono?.numero} ${nahual?.nombre}\n✨ Descubre tu Kin Maya:`;
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(`${text}\n${url}`)}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
   const glifo = getNahualGlifo(nahual.nombre);
   const cardinalClass = cardinalColors[nahual.punto_cardinal] || "";
   const interpretation = tonoInterpretations[tono.numero];
+  const intro = introKin(nahual, tono, parsed.kinNumber);
 
   const pageTitle = `Kin ${parsed.kinNumber}: ${tono.numero} ${nahual.nombre} - Calendario Maya`;
   const pageDesc = `El Kin ${parsed.kinNumber} combina el Nahual ${nahual.nombre} (${nahual.significado}) con el Tono ${tono.numero} ${tono.nombre} (${tono.significado}). ${interpretation.theme}. Descubre el significado profundo de esta energía Maya.`;
@@ -305,22 +278,10 @@ export default function KinPage() {
             <p className="text-lg font-medium text-primary">{interpretation.theme}</p>
           </section>
 
-          {/* Interpretation */}
-          <Card className="mb-8 border-primary/30 bg-primary/5">
-            <CardContent className="pt-6">
-              <p className="text-lg leading-relaxed">{interpretation.focus}</p>
-              <p className="mt-4 text-muted-foreground">
-                La energía de <strong>{nahual.nombre}</strong> ({nahual.significado}) se expresa a través del 
-                Tono <strong>{tono.numero} {tono.nombre}</strong> ({tono.significado}), creando un día ideal 
-                para conectar con {nahual.elemento.toLowerCase()} y {nahual.animal_guia.toLowerCase()}.
-              </p>
-            </CardContent>
-          </Card>
-
           {/* Content Grid */}
-          <div className="grid md:grid-cols-2 gap-6 mb-12">
+          <div className="grid md:grid-cols-2 gap-6 mb-12 items-start">
             {/* Tono */}
-            <Card>
+            <Card className="border-primary/30 bg-primary/5">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <span className="text-3xl font-bold text-primary">{tono.numero}</span>
@@ -331,12 +292,7 @@ export default function KinPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground mb-4">{tono.descripcion}</p>
-                {tono.cualidades?.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
-                    {tono.cualidades.map((c, i) => <Badge key={i} variant="outline">{c}</Badge>)}
-                  </div>
-                )}
+                <p className="leading-relaxed">{interpretation.focus}</p>
               </CardContent>
             </Card>
 
@@ -351,50 +307,12 @@ export default function KinPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground mb-4">{nahual.descripcion}</p>
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div><p className="text-muted-foreground">Elemento</p><p className="font-medium">{nahual.elemento}</p></div>
                   <div><p className="text-muted-foreground">Glifo</p><p className="font-medium">{nahual.animal_guia}</p></div>
                   <div><p className="text-muted-foreground">Color de Maíz</p><p className="font-medium">{nahual.color_maiz}</p></div>
                   <div><p className="text-muted-foreground">Punto Cardinal</p><p className="font-medium">{nahual.punto_cardinal}</p></div>
                 </div>
-              </CardContent>
-            </Card>
-
-            {/* Cualidades */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Star className="w-5 h-5 text-amber-500" /> Cualidades de {nahual.nombre}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2">
-                  {nahual.cualidades?.map((c, i) => (
-                    <li key={i} className="flex items-center gap-2">
-                      <Star className="w-4 h-4 text-amber-500" /><span>{c}</span>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-
-            {/* Sombras */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Heart className="w-5 h-5 text-primary" /> Aspectos a Trabajar
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2">
-                  {nahual.sombras?.map((s, i) => (
-                    <li key={i} className="flex items-center gap-2">
-                      <span className="w-4 h-4 rounded-full bg-muted flex items-center justify-center text-xs">•</span>
-                      <span>{s}</span>
-                    </li>
-                  ))}
-                </ul>
               </CardContent>
             </Card>
           </div>
@@ -415,34 +333,30 @@ export default function KinPage() {
             </div>
           </section>
 
-          {/* SEO Content */}
-          <section className="mt-16 prose prose-sm max-w-3xl mx-auto">
-            <h2>Significado del Kin {parsed.kinNumber}: {tono.numero} {nahual.nombre}</h2>
-            <p>
-              El <strong>Kin {parsed.kinNumber}</strong> del calendario Maya Cholq'ij representa la combinación única 
-              del Nahual <strong>{nahual.nombre}</strong> ({nahual.significado}) con el Tono <strong>{tono.numero} 
-              {tono.nombre}</strong> ({tono.significado}). Esta energía cósmica combina las cualidades del {nahual.elemento} 
-              con la vibración numérica del {tono.numero}.
-            </p>
-            
-            <h3>El Nahual {nahual.nombre}</h3>
-            <p>
-              {nahual.descripcion} Su glifo es {nahual.animal_guia} y está asociado con el punto 
-              cardinal {nahual.punto_cardinal} y el color de maíz {nahual.color_maiz}.
-            </p>
+          {/* Introducción (SEO): la lectura completa se abre con correo y la extensa vive en el Mapa */}
+          <section className="mt-16 max-w-3xl mx-auto text-muted-foreground leading-relaxed space-y-3">
+            <h2 className="font-serif text-3xl font-semibold text-foreground mb-4">Significado del Kin {parsed.kinNumber}: {tono.numero} {nahual.nombre}</h2>
+            <p>{intro.combinacion}</p>
 
-            <h3>El Tono {tono.numero} - {tono.nombre}</h3>
-            <p>{tono.descripcion}</p>
+            <h3 className="font-serif text-2xl font-semibold text-foreground pt-4">El Nahual {nahual.nombre}</h3>
+            <p>{intro.nahual}</p>
 
-            <h3>¿Es el Kin {parsed.kinNumber} tu Kin de nacimiento?</h3>
+            <h3 className="font-serif text-2xl font-semibold text-foreground pt-4">El Tono {tono.numero} - {tono.nombre}</h3>
+            <p>{intro.tono}</p>
+
+            <h3 className="font-serif text-2xl font-semibold text-foreground pt-4">¿Es el Kin {parsed.kinNumber} tu Kin de nacimiento?</h3>
+            <p>{intro.nacimiento}</p>
             <p>
-              Si naciste en un día con el Kin {parsed.kinNumber}, las energías de {nahual.nombre} y el Tono {tono.numero} 
-              influyen en tu misión de vida y personalidad. 
-              <Link to="/" className="text-primary hover:underline ml-1">
-                Calcula tu Kin de nacimiento exacto →
+              <Link to="/" className="inline-flex items-center gap-1 text-primary hover:underline">
+                Calcula tu Kin de nacimiento exacto
+                <ArrowRight className="w-4 h-4" aria-hidden="true" />
               </Link>
             </p>
           </section>
+
+          <div className="mt-10">
+            <CapturaLectura nahual={nahual} tono={tono.numero} origen="kin" />
+          </div>
         </main>
 
         <footer className="border-t py-8 text-center text-sm text-muted-foreground">

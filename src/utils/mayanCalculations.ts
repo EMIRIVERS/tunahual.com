@@ -1,4 +1,4 @@
-import { NahualDB, TonoDB } from '@/hooks/useMayanData';
+import type { NahualDB, TonoDB } from '../types/mayan.js';
 
 /**
  * Cruz Maya - Lógica basada en el Cholq'ij K'iche'

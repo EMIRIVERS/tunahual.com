@@ -1,3 +1,5 @@
+import { CapturaLectura } from '@/components/CapturaLectura';
+import { atributosCanon } from '@/data/maices';
 import { useParams, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
@@ -98,7 +100,7 @@ export default function ResultadoPage() {
         if (nahualRes.error) throw nahualRes.error;
         if (tonoRes.error) throw tonoRes.error;
 
-        setNahual(nahualRes.data);
+        setNahual(atributosCanon(nahualRes.data));
         setTono(tonoRes.data);
       } catch (err: any) {
         console.error('Error fetching result:', err);
@@ -437,6 +439,10 @@ export default function ResultadoPage() {
               </Button>
             </div>
           </section>
+
+          <div className="mt-10">
+            <CapturaLectura nahual={nahual} tono={tono.numero} origen="resultado" />
+          </div>
         </main>
 
         {/* Footer */}

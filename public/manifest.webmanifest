@@ -1,0 +1,17 @@
+{
+  "name": "Tu Nahual — Calculadora Maya",
+  "short_name": "Tu Nahual",
+  "description": "Descubre tu Nahual, tu tono y tu Cruz Maya en el calendario sagrado Cholq'ij.",
+  "lang": "es-MX",
+  "start_url": "/?utm_source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f8f1e1",
+  "theme_color": "#a3732b",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

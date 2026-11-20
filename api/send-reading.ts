@@ -1,17 +1,14 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
+import { origenPermitido } from "./_lib/origen.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  // Anti-abuso: solo aceptar peticiones desde nuestro propio sitio.
+  // Anti-abuso: solo aceptar peticiones desde nuestro propio sitio (host exacto, ver _lib/origen.ts).
   const origin = String(req.headers.origin || req.headers.referer || "");
-  const originAllowed =
-    /^https?:\/\/(www\.)?tunahual\.com/.test(origin) ||
-    /^https:\/\/[a-z0-9-]+\.vercel\.app/.test(origin) ||
-    /^http:\/\/localhost(:\d+)?/.test(origin);
-  if (!originAllowed) {
+  if (!origenPermitido(origin)) {
     return res.status(403).json({ error: "forbidden" });
   }
 

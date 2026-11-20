@@ -1,6 +1,8 @@
 import { memo, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Copy, Check } from "lucide-react";
+import { Copy, Check, ImageDown, Loader2 } from "lucide-react";
+import { generarTarjetaHistoria } from "@/utils/tarjetaHistoria";
+import { trackEvent } from "@/lib/analytics";
 import { useToast } from "@/hooks/use-toast";
 import { MayanKinDB, MayanCrossDB } from "@/utils/mayanCalculations";
 import { nahualToSlug } from "@/data/nahualSlugs";
@@ -13,6 +15,7 @@ interface ShareButtonsProps {
 export const ShareButtons = memo(function ShareButtons({ result, cross }: ShareButtonsProps) {
   const [copied, setCopied] = useState(false);
   const [copiedInstagram, setCopiedInstagram] = useState(false);
+  const [generandoTarjeta, setGenerandoTarjeta] = useState(false);
   const { toast } = useToast();
 
   const nahualSlug = nahualToSlug[result.nahual.nombre] || result.nahual.nombre.toLowerCase();
@@ -48,6 +51,41 @@ export const ShareButtons = memo(function ShareButtons({ result, cross }: ShareB
     setCopiedInstagram(true);
     toast({ title: '¡Texto copiado!', description: 'Ábrelo en Instagram Stories' });
     setTimeout(() => setCopiedInstagram(false), 2000);
+  };
+
+  const handleTarjeta = async () => {
+    setGenerandoTarjeta(true);
+    try {
+      const blob = await generarTarjetaHistoria({
+        nahual: result.nahual.nombre,
+        tono: result.tone.numero,
+        significado: result.nahual.significado,
+      });
+      const nombreArchivo = `mi-nahual-${result.tone.numero}-${nahualSlug}.png`;
+      const archivo = new File([blob], nombreArchivo, { type: "image/png" });
+      trackEvent("tarjeta_historia", { nahual: result.nahual.nombre, tono: result.tone.numero });
+
+      // En el celular se abre la hoja de compartir (Instagram, WhatsApp…); en escritorio se descarga.
+      if (navigator.canShare?.({ files: [archivo] })) {
+        await navigator.share({ files: [archivo], title: `Soy ${result.tone.numero} ${result.nahual.nombre}` });
+      } else {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = nombreArchivo;
+        a.click();
+        URL.revokeObjectURL(url);
+        toast({ title: "¡Tarjeta lista!", description: "Súbela a tus historias de Instagram." });
+      }
+    } catch (e) {
+      // AbortError = la persona cerró la hoja de compartir; no es un fallo.
+      if (!(e instanceof DOMException && e.name === "AbortError")) {
+        console.error("tarjeta historia:", e);
+        toast({ title: "No se pudo crear la tarjeta", description: "Intenta de nuevo.", variant: "destructive" });
+      }
+    } finally {
+      setGenerandoTarjeta(false);
+    }
   };
 
   const handleCopyLink = async () => {
@@ -104,6 +142,17 @@ export const ShareButtons = memo(function ShareButtons({ result, cross }: ShareB
           {copiedInstagram ? 'Copiado' : 'Instagram'}
         </Button>
       </div>
+
+      {/* Tarjeta 9:16 para historia */}
+      <Button
+        variant="outline"
+        onClick={handleTarjeta}
+        disabled={generandoTarjeta}
+        className="w-full rounded-full py-5 text-sm font-medium gap-2"
+      >
+        {generandoTarjeta ? <Loader2 className="w-4 h-4 animate-spin" /> : <ImageDown className="w-4 h-4" />}
+        Tarjeta para mi historia
+      </Button>
 
       {/* Copiar enlace — ancho completo */}
       <Button

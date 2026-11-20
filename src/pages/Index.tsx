@@ -11,13 +11,38 @@ import {
 import { Calendar, ArrowLeft, Loader2, Globe } from "lucide-react";
 import { EnergiaDelDia } from "@/components/EnergiaDelDia";
 import logo from "@/assets/logo-azul-anaite.png";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import lagoAtitlan from "@/assets/lago-atitlan-bg.jpg";
+import { useLeadCapture } from "@/hooks/useLeadCapture";
 import { trackEvent } from "@/lib/analytics";
 
 // Video de fondo de toda la pantalla — public/videos/fondo-tu-nahual.mp4.
-// Si no existe (404) o el usuario prefiere movimiento reducido, cae al patrón maya (.index-bg).
+// Debajo siempre está la foto del lago de Atitlán: es el fondo en móvil, con
+// movimiento reducido o si el video no existe (404).
 const BG_VIDEO_SRC = "/videos/fondo-tu-nahual.mp4";
+
+// Redes de Azul Anaité, en monocromo bronce (currentColor), sin colores de marca.
+const REDES = [
+  {
+    nombre: "Instagram",
+    href: "https://www.instagram.com/azulanaite/",
+    path: "M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z",
+  },
+  {
+    nombre: "Facebook",
+    href: "https://www.facebook.com/Azulanaite/",
+    path: "M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z",
+  },
+  {
+    nombre: "TikTok",
+    href: "https://www.tiktok.com/@azulanaite13",
+    path: "M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z",
+  },
+  {
+    nombre: "Spotify",
+    href: "https://open.spotify.com/show/26LpXjwLXlQ1Fe06kfEoRT",
+    path: "M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z",
+  },
+];
 
 // Lazy load heavy modals - critical for LCP
 const MayanResultModal = lazy(() => 
@@ -35,20 +60,16 @@ const Index = () => {
   const [isLeadModalOpen, setIsLeadModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isCalculating, setIsCalculating] = useState(false);
-  const [isSubmittingLead, setIsSubmittingLead] = useState(false);
-  const [leadSubmitted, setLeadSubmitted] = useState(false);
-  const [emailSent, setEmailSent] = useState(false);
+  const { submit: enviarLead, isSubmitting: isSubmittingLead, leadSubmitted, emailSent } = useLeadCapture();
   const [bgVideoFailed, setBgVideoFailed] = useState(false);
   const heroReducedMotion =
     typeof window !== "undefined" &&
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   // En móvil (<768px) no se descarga el video de 5.9 MB: cae directo al
-  // patrón maya (.index-bg), que ya hace de fondo/poster.
+  // foto del lago, que ya hace de fondo/poster.
   const isMobileViewport =
     typeof window !== "undefined" && window.matchMedia("(max-width: 767px)").matches;
   const showBgVideo = !bgVideoFailed && !heroReducedMotion && !isMobileViewport;
-
-  const { toast } = useToast();
 
   const { nahuales, tonos, loading: loadingData } = useMayanData();
 
@@ -89,153 +110,22 @@ const Index = () => {
     }
   }, [birthDate, nahuales, tonos]);
 
-  const handleLeadSubmit = useCallback(async (
-    nombre: string,
-    email: string,
-    telefono: string
-  ) => {
-    if (!result || !selectedDate) return;
-
-    setIsSubmittingLead(true);
-
-    try {
-      const kinCompleto = `${result.tone.numero} ${result.nahual.nombre}`;
-
-      // Try insert first; if email already exists (duplicate), just continue
-      const { error } = await supabase.from("leads").insert({
+  const handleLeadSubmit = useCallback(
+    async (nombre: string, email: string, telefono: string) => {
+      if (!result || !selectedDate) return;
+      const ok = await enviarLead({
         nombre,
         email,
         telefono,
-        fecha_nacimiento: birthDate,
-        nahual: result.nahual.nombre,
+        fechaNacimiento: birthDate,
+        nahual: result.nahual,
         tono: result.tone.numero,
-        kin_completo: kinCompleto,
+        origen: "home",
       });
-
-      // Ignore duplicate email error (code 23505) - user already registered, that's fine
-      if (error && error.code !== '23505') throw error;
-
-      // Sync to AZUL ANAITÉ OS (no bloqueante para el visitante: el lead ya
-      // quedó guardado en Supabase arriba). Antes se descartaba la respuesta
-      // (fire-and-forget con solo .catch), así que un synced:false del CRM
-      // era invisible. Ahora sí leemos el body: si el CRM falló, lo
-      // reportamos a Sentry (si está activo) para que quede accionable sin
-      // tocar la experiencia del visitante. No se agrega reintento
-      // automático del lado cliente: el servidor ya deja el detalle en sus
-      // logs para reproceso manual, y un fallo de sync suele ser de
-      // configuración/CRM (no transitorio de red del visitante), así que un
-      // retry aquí no aportaría y sí complicaría el flujo.
-      fetch("/api/sync-lead", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          nombre,
-          email,
-          telefono,
-          nahual: result.nahual.nombre,
-          tono: result.tone.numero,
-          kin_completo: kinCompleto,
-          fecha_nacimiento: birthDate,
-        }),
-      })
-        .then(async (resp) => {
-          const json = await resp.json().catch(() => null);
-          if (json?.synced === false) {
-            console.error("[sync-lead] el CRM no confirmó el lead:", json.crmError);
-            // Reportar a Sentry solo si está activo (mismo patrón que ErrorBoundary).
-            import("@/lib/monitoring")
-              .then(({ isSentryActive }) => {
-                if (isSentryActive()) {
-                  import("@sentry/react").then((Sentry) => {
-                    Sentry.captureMessage("sync-lead: CRM no confirmó el lead", {
-                      level: "error",
-                      extra: { crmError: json.crmError, email, telefono },
-                    });
-                  });
-                }
-              })
-              .catch(() => {
-                /* no romper el flujo del lead si el reporte falla */
-              });
-          }
-        })
-        .catch(console.error);
-
-      // Send to Zapier webhook if configured (non-blocking)
-      supabase
-        .from("configuracion")
-        .select("valor")
-        .eq("clave", "zapier_webhook_url")
-        .maybeSingle()
-        .then(({ data: config }) => {
-          if (config?.valor) {
-            fetch(config.valor, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              mode: "no-cors",
-              body: JSON.stringify({
-                nombre,
-                email,
-                telefono,
-                fecha_nacimiento: birthDate,
-                nahual: result.nahual.nombre,
-                tono: result.tone.numero,
-                kin_completo: kinCompleto,
-                timestamp: new Date().toISOString(),
-              }),
-            }).catch(console.error);
-          }
-        });
-
-      // Enviar la lectura por email. Esperamos la respuesta para NO afirmar
-      // que se envió si el proveedor aún no está configurado (degrada con gracia).
-      let sent = false;
-      try {
-        const resp = await fetch("/api/send-reading", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            nombre,
-            email,
-            nahual: result.nahual.nombre,
-            tono: result.tone.numero,
-            significado: result.nahual.significado,
-            descripcion: result.nahual.descripcion,
-            kin_completo: kinCompleto,
-          }),
-        });
-        const json = await resp.json().catch(() => ({}));
-        sent = json?.ok === true;
-      } catch (e) {
-        console.error("send-reading error:", e);
-      }
-
-      setEmailSent(sent);
-      setIsLeadModalOpen(false);
-      setLeadSubmitted(true);
-
-      // Track lead submission event
-      trackEvent('lead_enviado', {
-        nahual: result.nahual.nombre,
-        tono: result.tone.numero,
-      });
-
-      toast(
-        sent
-          ? { title: "¡Listo!", description: "Te enviamos tu lectura a tu correo." }
-          : { title: "¡Guardado!", description: "Tu lectura quedó guardada." }
-      );
-    } catch (error) {
-      console.error("Error saving lead:", error);
-      toast({
-        title: "Error",
-        description: "No se pudieron guardar tus datos. Intenta de nuevo.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmittingLead(false);
-    }
-  }, [result, selectedDate, birthDate, toast]);
+      if (ok) setIsLeadModalOpen(false);
+    },
+    [result, selectedDate, birthDate, enviarLead]
+  );
 
   const handleCloseLeadModal = useCallback(() => setIsLeadModalOpen(false), []);
   const handleCloseResultModal = useCallback(() => setIsResultModalOpen(false), []);
@@ -274,264 +164,228 @@ const Index = () => {
         <meta name="robots" content="index, follow" />
       </Helmet>
 
-      <div className="fixed inset-0 bg-background flex flex-col touch-manipulation index-bg">
-        {/* Background video - reemplaza el patrón maya cuando está disponible */}
-        {showBgVideo && (
-          <video
-            className="absolute inset-0 w-full h-full object-cover"
-            src={BG_VIDEO_SRC}
-            autoPlay
-            muted
-            loop
-            playsInline
-            onError={() => setBgVideoFailed(true)}
+      {/*
+        html/body son position:fixed + overflow:hidden (index.css), así que la
+        home es su propio contenedor de scroll. Antes era un armazón fijo con
+        header y footer rígidos y un <main> centrado con flex: cuando el
+        contenido no cabía, la parte de arriba quedaba recortada sin poder
+        alcanzarla y el formulario quedaba debajo del pie. Ahora todo fluye.
+      */}
+      <div className="fixed inset-0 overflow-y-auto overflow-x-hidden overscroll-contain touch-manipulation">
+        {/* Fondo: foto del lago (siempre) + video en escritorio + velo para contraste AA */}
+        <div aria-hidden className="fixed inset-0 overflow-hidden bg-background">
+          <img
+            src={lagoAtitlan}
+            alt=""
+            className="absolute inset-0 h-full w-full object-cover object-[42%_center]"
+            decoding="async"
           />
-        )}
+          {showBgVideo && (
+            <video
+              className="absolute inset-0 h-full w-full object-cover"
+              src={BG_VIDEO_SRC}
+              poster={lagoAtitlan}
+              autoPlay
+              muted
+              loop
+              playsInline
+              onError={() => setBgVideoFailed(true)}
+            />
+          )}
+          <div className="absolute inset-0 home-velo" />
+        </div>
 
-        {/* Overlay - simplified, no blur for better performance */}
-        <div
-          className={`absolute inset-0 pointer-events-none ${
-            showBgVideo ? "bg-background/60" : "bg-background/90"
-          }`}
-        />
+        <div className="relative flex min-h-full flex-col">
+          <header
+            className="shrink-0"
+            style={{ paddingTop: "env(safe-area-inset-top)" }}
+          >
+            <div
+              className="mx-auto grid max-w-5xl grid-cols-[1fr_auto_1fr] items-center px-5 py-3"
+              style={{
+                paddingLeft: "max(1.25rem, env(safe-area-inset-left))",
+                paddingRight: "max(1.25rem, env(safe-area-inset-right))",
+              }}
+            >
+              <a
+                href="https://azulanaite.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="-ml-2 flex items-center gap-2 justify-self-start rounded-full p-2 text-foreground/70 transition-colors hover:text-foreground"
+                aria-label="Volver a Azul Anaité"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                <span className="hidden text-sm sm:inline">Azul Anaité</span>
+              </a>
+              <img
+                src={logo}
+                alt="Azul Anaité"
+                className="h-12 w-auto sm:h-14"
+                width={280}
+                height={80}
+                loading="eager"
+                fetchPriority="high"
+              />
+              <span />
+            </div>
+          </header>
 
-        {/* Header - removed backdrop-blur for better INP */}
-        <header 
-          className="shrink-0 z-50 bg-background/95 border-b border-border/50 relative" 
-          style={{ paddingTop: 'env(safe-area-inset-top)' }}
-        >
-          <div 
-            className="max-w-lg mx-auto px-4 py-2 flex items-center justify-between" 
-            style={{ 
-              paddingLeft: 'max(1rem, env(safe-area-inset-left))', 
-              paddingRight: 'max(1rem, env(safe-area-inset-right))' 
+          <main className="flex flex-1 px-5 pb-12 pt-6 sm:pt-10 md:items-center md:pb-16">
+            {isCalculating ? (
+              /* Ceremonial reveal — concentric rings turning slowly, not a busy spinner */
+              <div className="mx-auto w-full max-w-md animate-fade-in">
+                <div className="flex flex-col items-center justify-center py-16">
+                  <div className="relative w-28 h-28 mb-7">
+                    <div className="absolute inset-0 rounded-full border border-primary/20 animate-spin" style={{ animationDuration: '9s' }} />
+                    <div className="absolute inset-3 rounded-full border border-primary/30 animate-spin" style={{ animationDuration: '6s', animationDirection: 'reverse' }} />
+                    <div className="absolute inset-6 rounded-full border border-primary/40 animate-spin" style={{ animationDuration: '4s' }} />
+                    <div className="absolute inset-0 m-auto w-2 h-2 rounded-full bg-primary animate-pulse-slow" />
+                    <Calendar className="absolute inset-0 m-auto w-6 h-6 text-primary/70" />
+                  </div>
+                  <p className="font-serif text-2xl text-foreground text-center">
+                    Consultando el calendario sagrado
+                  </p>
+                  <p className="font-serif italic text-base text-secondary-foreground mt-2">
+                    Cholq'ij
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="mx-auto grid w-full max-w-md animate-fade-in gap-12 md:max-w-5xl md:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] md:items-end md:gap-20">
+                {/* Acción principal: calcular el Nahual */}
+                <div>
+                  <p className="font-serif text-lg italic text-secondary-foreground">
+                    Calendario sagrado Cholq'ij
+                  </p>
+                  <h1 className="mt-1 font-serif text-[3.25rem] font-semibold leading-[0.95] tracking-[-0.02em] text-foreground sm:text-7xl">
+                    Descubre tu Nahual
+                  </h1>
+                  <p className="mt-4 max-w-[34ch] text-base leading-relaxed text-foreground/80">
+                    La energía del día en que naciste, leída a través de la
+                    cuenta sagrada maya k'iche'.
+                  </p>
+
+                  <div className="mt-7 rounded-[1.25rem] border border-primary/20 bg-card p-5 shadow-[0_24px_48px_-28px_hsl(30_25%_20%/0.45)] sm:p-6">
+                    <label
+                      htmlFor="birth-date"
+                      className="block text-sm font-medium text-foreground"
+                    >
+                      Tu fecha de nacimiento
+                    </label>
+                    <div className="relative mt-2">
+                      <Calendar className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-secondary-foreground" />
+                      {/* text-base (16px): con menos, iOS hace zoom al enfocar */}
+                      <input
+                        type="date"
+                        id="birth-date"
+                        name="birth-date"
+                        value={birthDate}
+                        onChange={(e) => setBirthDate(e.target.value)}
+                        className="campo-fecha h-12 w-full min-w-0 appearance-none rounded-full border border-input bg-background pl-11 pr-4 text-left text-base text-foreground transition-shadow focus:border-transparent focus:outline-none focus:ring-2 focus:ring-ring"
+                        max={maxDate}
+                      />
+                    </div>
+                    <Button
+                      onClick={handleCalculate}
+                      disabled={isButtonDisabled}
+                      variant="cta"
+                      // Bronce un punto más oscuro que --primary: texto crema con contraste AA (≈5:1)
+                      className="mt-3 h-12 w-full rounded-full bg-[hsl(35_60%_34%)] text-base font-medium hover:bg-[hsl(35_60%_30%)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {loadingData ? (
+                        <>
+                          <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                          Cargando...
+                        </>
+                      ) : (
+                        "Conocer mi Nahual"
+                      )}
+                    </Button>
+                    {result !== null && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="mt-2 w-full text-foreground/70"
+                        onClick={() => {
+                          setResult(null);
+                          setCross(null);
+                          setSelectedDate(null);
+                          setBirthDate("");
+                        }}
+                      >
+                        <ArrowLeft className="mr-1.5 h-4 w-4" />
+                        Calcular otra fecha
+                      </Button>
+                    )}
+                  </div>
+
+                  {/* «¿Por qué conocer tu Nahual?», reducido a su frase */}
+                  <p className="mt-5 max-w-[36ch] font-serif text-lg italic leading-snug text-foreground/80">
+                    Un mapa preciso para que recuerdes quién naciste siendo.
+                  </p>
+                </div>
+
+                {/* Pieza secundaria: la energía del día */}
+                <EnergiaDelDia nahuales={nahuales} tonos={tonos} />
+              </div>
+            )}
+          </main>
+
+          <footer
+            className="shrink-0 border-t border-primary/15"
+            style={{
+              paddingBottom: "max(1.25rem, env(safe-area-inset-bottom))",
+              paddingLeft: "max(1.25rem, env(safe-area-inset-left))",
+              paddingRight: "max(1.25rem, env(safe-area-inset-right))",
             }}
           >
-            <a
-              href="https://azulanaite.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span className="text-sm hidden sm:inline">Azul Anaité</span>
-            </a>
-            <img
-              src={logo}
-              alt="Azul Anaité"
-              className="h-20 w-auto"
-              width={280}
-              height={80}
-              loading="eager"
-              fetchPriority="high"
-            />
-            <div className="w-16" />
-          </div>
-        </header>
-
-        {/* Main Content - Always show form, no AnimatePresence */}
-        <main className="flex-1 min-h-0 overflow-y-auto flex items-center justify-center px-4 py-2 relative z-10">
-          {isCalculating ? (
-            /* Ceremonial reveal — concentric rings turning slowly, not a busy spinner */
-            <div className="w-full max-w-md animate-fade-in">
-              <div className="flex flex-col items-center justify-center py-12">
-                <div className="relative w-28 h-28 mb-7">
-                  <div className="absolute inset-0 rounded-full border border-primary/20 animate-spin" style={{ animationDuration: '9s' }} />
-                  <div className="absolute inset-3 rounded-full border border-primary/30 animate-spin" style={{ animationDuration: '6s', animationDirection: 'reverse' }} />
-                  <div className="absolute inset-6 rounded-full border border-primary/40 animate-spin" style={{ animationDuration: '4s' }} />
-                  <div className="absolute inset-0 m-auto w-2 h-2 rounded-full bg-primary animate-pulse-slow" />
-                  <Calendar className="absolute inset-0 m-auto w-6 h-6 text-primary/70" />
-                </div>
-                <p className="font-serif text-2xl text-foreground text-center">
-                  Consultando el calendario sagrado
-                </p>
-                <p className="text-xs uppercase tracking-[0.25em] text-primary/60 mt-3">
-                  Cholq'ij
-                </p>
-              </div>
-            </div>
-          ) : (
-            <div className="w-full max-w-[min(28rem,calc(100vw-2rem))] space-y-4 animate-fade-in">
-              {/* Welcome Section */}
-              <div className="text-center space-y-3">
-                <p className="text-[0.7rem] uppercase tracking-[0.25em] text-primary/70 font-medium">
-                  Calendario sagrado Cholq'ij
-                </p>
-                <h1 className="font-serif text-4xl sm:text-5xl font-semibold text-foreground tracking-tight leading-[1.05]">
-                  Descubre tu Nahual
-                </h1>
-                <p className="text-sm sm:text-base text-muted-foreground max-w-sm mx-auto leading-relaxed">
-                  La energía del día en que naciste, leída a través de la
-                  cuenta sagrada maya k'iche'.
-                </p>
-              </div>
-
-              {/* Why it matters section - editorial */}
-              <div className="relative overflow-hidden bg-card/60 border border-border/60 rounded-2xl p-5 text-left space-y-3">
-                <h2 className="font-serif text-lg sm:text-xl font-semibold text-foreground">
-                  ¿Por qué conocer tu Nahual?
-                </h2>
-                <p className="text-sm text-foreground/80 leading-relaxed">
-                  La energía del día que naciste revela información
-                  importante. Es el mapa para que recuerdes quién eres, a qué
-                  has venido, y descubras cuáles son tus dones, virtudes y
-                  desafíos en la vida.
-                </p>
-                <p className="text-sm text-muted-foreground italic border-l-2 border-primary/40 pl-4 leading-relaxed">
-                  Un mapa preciso para que recuerdes quién naciste siendo.
-                </p>
-              </div>
-
-              {/* Energía de hoy */}
-              <EnergiaDelDia nahuales={nahuales} tonos={tonos} />
-
-              {/* Calculator Card */}
-              <div className="bg-card rounded-2xl p-5 shadow-sm border border-border/50">
-                <div className="space-y-3">
-                  <div className="relative">
-                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-                    <input
-                      type="date"
-                      id="birth-date"
-                      name="birth-date"
-                      aria-label="Fecha de nacimiento"
-                      value={birthDate}
-                      onChange={(e) => setBirthDate(e.target.value)}
-                      className="w-full pl-10 pr-3 py-3 rounded-full border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all text-sm"
-                      max={maxDate}
-                    />
-                  </div>
-                  <Button
-                    onClick={handleCalculate}
-                    disabled={isButtonDisabled}
-                    variant={birthDate ? "cta" : "default"}
-                    className="w-full rounded-full py-5 text-base font-medium disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]"
-                  >
-                    {loadingData ? (
-                      <>
-                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                        Cargando...
-                      </>
-                    ) : (
-                      "Conocer mi Nahual"
-                    )}
-                  </Button>
-                  {result !== null && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="w-full text-muted-foreground"
-                      onClick={() => {
-                        setResult(null);
-                        setCross(null);
-                        setSelectedDate(null);
-                        setBirthDate("");
-                        setLeadSubmitted(false);
-                        setEmailSent(false);
-                      }}
+            <div className="mx-auto flex max-w-5xl flex-col items-center gap-4 pt-5 md:flex-row md:justify-between">
+              <ul className="flex items-center gap-1" aria-label="Redes de Azul Anaité">
+                {REDES.map((red) => (
+                  <li key={red.nombre}>
+                    <a
+                      href={red.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={red.nombre}
+                      className="grid h-11 w-11 place-items-center rounded-full text-secondary-foreground transition-colors hover:bg-primary/10 hover:text-foreground"
                     >
-                      ← Calcular otra fecha
-                    </Button>
-                  )}
-                </div>
+                      <svg viewBox="0 0 24 24" className="h-[1.125rem] w-[1.125rem] fill-current" aria-hidden>
+                        <path d={red.path} />
+                      </svg>
+                    </a>
+                  </li>
+                ))}
+                <li>
+                  <a
+                    href="https://azulanaite.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Sitio web"
+                    className="grid h-11 w-11 place-items-center rounded-full text-secondary-foreground transition-colors hover:bg-primary/10 hover:text-foreground"
+                  >
+                    <Globe className="h-[1.125rem] w-[1.125rem]" />
+                  </a>
+                </li>
+              </ul>
+
+              <div className="flex flex-col items-center gap-1 text-center md:items-end md:text-right">
+                <a
+                  href="/nahuales"
+                  className="inline-flex items-center gap-1.5 text-sm font-medium text-secondary-foreground underline-offset-4 hover:underline"
+                >
+                  Conoce los 20 Nahuales
+                  <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden>
+                    <path d="M3 8h10M9 4l4 4-4 4" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </a>
+                <p className="text-xs text-foreground/70">
+                  © 2026 Azul Anaité · azulanaite.com
+                </p>
               </div>
-
-              {/* Contextual date energy */}
-              <p className="text-center text-xs text-muted-foreground">
-                La energía de hoy influye en tu lectura
-              </p>
             </div>
-          )}
-        </main>
-
-        {/* Footer */}
-        <footer
-          className="shrink-0 max-w-lg mx-auto px-4 py-3 text-center relative z-10"
-          style={{
-            paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))',
-            paddingLeft: 'max(1rem, env(safe-area-inset-left))',
-            paddingRight: 'max(1rem, env(safe-area-inset-right))',
-          }}
-        >
-          {/* Social icons row */}
-          <div className="flex items-center justify-center gap-3 mb-2">
-            {/* Instagram */}
-            <a
-              href="https://www.instagram.com/azulanaite/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center w-9 h-9 rounded-full bg-gradient-to-br from-pink-500 via-rose-500 to-orange-400 hover:opacity-80 hover:scale-110 transition-all duration-200"
-              aria-label="Instagram"
-            >
-              <svg viewBox="0 0 24 24" className="w-4 h-4 fill-white" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
-              </svg>
-            </a>
-
-            {/* Facebook */}
-            <a
-              href="https://www.facebook.com/Azulanaite/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center w-9 h-9 rounded-full bg-[#1877F2] hover:opacity-80 hover:scale-110 transition-all duration-200"
-              aria-label="Facebook"
-            >
-              <svg viewBox="0 0 24 24" className="w-4 h-4 fill-white" xmlns="http://www.w3.org/2000/svg">
-                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-              </svg>
-            </a>
-
-            {/* TikTok */}
-            <a
-              href="https://www.tiktok.com/@azulanaite13"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center w-9 h-9 rounded-full bg-black hover:opacity-80 hover:scale-110 transition-all duration-200"
-              aria-label="TikTok"
-            >
-              <svg viewBox="0 0 24 24" className="w-4 h-4 fill-white" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z" />
-              </svg>
-            </a>
-
-            {/* Spotify */}
-            <a
-              href="https://open.spotify.com/show/26LpXjwLXlQ1Fe06kfEoRT"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center w-9 h-9 rounded-full bg-[#1DB954] hover:opacity-80 hover:scale-110 transition-all duration-200"
-              aria-label="Spotify"
-            >
-              <svg viewBox="0 0 24 24" className="w-4 h-4 fill-white" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z" />
-              </svg>
-            </a>
-
-            {/* Website */}
-            <a
-              href="https://azulanaite.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center w-9 h-9 rounded-full border border-primary/40 bg-primary/10 hover:bg-primary/20 hover:scale-110 transition-all duration-200"
-              aria-label="Sitio web"
-            >
-              <Globe className="w-4 h-4 text-primary" />
-            </a>
-          </div>
-
-          {/* Nahuales link */}
-          <a
-            href="/nahuales"
-            className="text-xs text-primary hover:underline block mb-1"
-          >
-            Conoce los 20 Nahuales →
-          </a>
-
-          {/* Copyright */}
-          <p className="text-xs text-muted-foreground">
-            © 2026 Azul Anaité · azulanaite.com
-          </p>
-        </footer>
+          </footer>
+        </div>
 
         {/* Lazy loaded modals - only load when needed */}
         <Suspense fallback={null}>

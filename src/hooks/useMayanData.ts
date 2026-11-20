@@ -1,32 +1,9 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { atributosCanon } from '@/data/maices';
 
-export interface NahualDB {
-  id: string;
-  index_num: number;
-  nombre: string;
-  significado: string;
-  descripcion: string;
-  elemento: string;
-  animal_guia: string;
-  punto_cardinal: string;
-  color_maiz: string;
-  parte_cuerpo: string;
-  lugar_poder: string;
-  elemento_conexion: string;
-  cualidades: string[];
-  sombras: string[];
-  fecundado_en: string | null;
-}
-
-export interface TonoDB {
-  id: string;
-  numero: number;
-  nombre: string;
-  significado: string;
-  descripcion: string;
-  cualidades: string[];
-}
+import type { NahualDB, TonoDB } from '../types/mayan';
+export type { NahualDB, TonoDB };
 
 export function useMayanData() {
   const [nahuales, setNahuales] = useState<NahualDB[]>([]);
@@ -48,7 +25,7 @@ export function useMayanData() {
         if (nahualRes.error) throw nahualRes.error;
         if (tonoRes.error) throw tonoRes.error;
 
-        setNahuales(nahualRes.data || []);
+        setNahuales((nahualRes.data || []).map(atributosCanon));
         setTonos(tonoRes.data || []);
       } catch (err: any) {
         console.error('Error fetching Mayan data:', err);

@@ -7,10 +7,11 @@ import { Badge } from '@/components/ui/badge';
 import { Lead } from '@/hooks/useAdminData';
 import { Search, RefreshCw, Download, ChevronLeft, ChevronRight } from 'lucide-react';
 import { format } from 'date-fns';
+import { getMaizInfo } from '@/data/maices';
 import { es } from 'date-fns/locale';
 
 // Datos estáticos de nahuales para mostrar información derivada
-const nahualData: Record<string, { puntoCardinal: string; colorMaiz: string; elemento: string; animalGuia: string }> = {
+const nahualDataBase: Record<string, { puntoCardinal: string; colorMaiz: string; elemento: string; animalGuia: string }> = {
   'Imox': { puntoCardinal: 'Este', colorMaiz: 'Rojo', elemento: 'Agua', animalGuia: 'Lagarto' },
   "Iq'": { puntoCardinal: 'Norte', colorMaiz: 'Blanco', elemento: 'Aire', animalGuia: 'Colibrí' },
   "Aq'ab'al": { puntoCardinal: 'Oeste', colorMaiz: 'Negro', elemento: 'Luz y Oscuridad', animalGuia: 'Murciélago' },
@@ -32,6 +33,14 @@ const nahualData: Record<string, { puntoCardinal: string; colorMaiz: string; ele
   'Kawoq': { puntoCardinal: 'Oeste', colorMaiz: 'Negro', elemento: 'Agua', animalGuia: 'Tortuga' },
   'Ajpu': { puntoCardinal: 'Sur', colorMaiz: 'Amarillo', elemento: 'Fuego', animalGuia: 'Guardián del Sol' },
 };
+
+// Maíz, elemento y dirección salen del canon (src/data/maices.ts).
+const nahualData: typeof nahualDataBase = Object.fromEntries(
+  Object.entries(nahualDataBase).map(([nombre, d]) => {
+    const i = getMaizInfo(nombre);
+    return [nombre, i ? { ...d, puntoCardinal: i.direccion, colorMaiz: i.color, elemento: i.elemento } : d];
+  })
+);
 
 interface LeadsTableProps {
   leads: Lead[];
